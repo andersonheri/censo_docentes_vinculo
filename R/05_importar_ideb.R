@@ -223,26 +223,59 @@ ler_ideb_xlsx <- function(caminho_xlsx, coluna_ancora, aba = 1) {
   )[1]
   col_rede  <- grep("^REDE$", names(dados), value = TRUE, ignore.case = TRUE)[1]
 
-  # 4b) Fallback POR VALOR (não por nome): se nenhuma coluna com nome
-  # SG_UF/UF foi encontrada, procura entre as colunas SEM NOME (as que
-  # foram descartadas de `dados` acima) uma cujos valores sejam quase
-  # todos siglas de UF ou nomes de região — típico do arquivo de
-  # UF/região, cuja coluna de identificação não tem rótulo na linha de
-  # cabeçalho achatada. Já roda sobre `dados_bruto` SEM as linhas de
-  # rodapé (passo 3b), então o texto de nota não atrapalha mais aqui.
-  if (is.na(col_uf) && is.na(col_mun)) {
-    vocabulario_uf <- c(names(uf_regiao), unique(uf_regiao), "Brasil", "BR")
-    candidatos <- names(dados_bruto)[vapply(dados_bruto, function(col) {
+  # 4b) Fallback POR VALOR (não por nome), para colunas sem rótulo no
+  # cabeçalho achatado — caso do arquivo de UF/região, onde nem a
+  # identificação (Região/UF) nem a Rede têm nome na linha de
+  # cabeçalho. Estratégia em duas partes:
+  #
+  #  i) REDE é reconhecida pelo PRÓPRIO vocabulário fechado de rede de
+  #     ensino (Total/Pública/Estadual/Municipal/Privada/Federal),
+  #     tolerando marcadores de nota do INEP (ex.: "Privada (1)",
+  #     "Total (3)(4)").
+  #  ii) A coluna de identificação (Região/UF) NÃO é validada contra um
+  #     vocabulário de siglas/nomes — o INEP mistura siglas, nomes por
+  #     extenso e abreviações não padronizadas (ex.: "R. G. do Norte"),
+  #     o que tornaria qualquer lista fixa frágil. Em vez disso, é
+  #     obtida por ELIMINAÇÃO: a coluna sem nome que sobrar depois de
+  #     identificar a Rede.
+  if (is.na(col_rede)) {
+    vocabulario_rede <- c("Total", "P[uú]blica", "Estadual", "Municipal",
+                           "Privada", "Federal")
+    padrao_rede <- paste0(
+      "^(", paste(vocabulario_rede, collapse = "|"), ")(\\s*\\(\\d+\\))*$"
+    )
+    candidatos_rede <- names(dados_bruto)[vapply(dados_bruto, function(col) {
       valores <- na.omit(as.character(col))
-      length(valores) > 0 && mean(valores %in% vocabulario_uf) > 0.8
+      length(valores) > 0 && mean(grepl(padrao_rede, valores)) > 0.8
     }, logical(1))]
 
-    if (length(candidatos) >= 1) {
-      col_uf <- candidatos[1]
+    if (length(candidatos_rede) >= 1) {
+      col_rede <- candidatos_rede[1]
+      dados[[col_rede]] <- dados_bruto[[col_rede]]
+      message("    [fallback por valor] Nenhuma coluna nomeada REDE; ",
+              "detectei '", col_rede, "' pelo conteúdo (Total/Pública/",
+              "Estadual/Municipal/Privada/Federal).")
+    }
+  }
+
+  if (is.na(col_uf) && is.na(col_mun)) {
+    cols_sem_nome <- setdiff(
+      names(dados_bruto)[grepl("^\\.\\.\\.|^NA$|^$", names(dados_bruto))],
+      col_rede
+    )
+    # Entre as que sobraram, usa a de maior taxa de preenchimento —
+    # a coluna de identificação (Região/UF) deve estar presente em
+    # praticamente todas as linhas de dado real.
+    if (length(cols_sem_nome) >= 1) {
+      taxas_preenchimento <- vapply(cols_sem_nome, function(col) {
+        mean(!is.na(dados_bruto[[col]]))
+      }, numeric(1))
+      col_uf <- cols_sem_nome[which.max(taxas_preenchimento)]
       dados[[col_uf]] <- dados_bruto[[col_uf]]
-      message("    [fallback por valor] Nenhuma coluna nomeada SG_UF/UF; ",
-              "detectei '", col_uf, "' pelo conteúdo (siglas de UF/nomes ",
-              "de região). Confira os valores abaixo.")
+      message("    [fallback por eliminação] Nenhuma coluna nomeada SG_UF/UF; ",
+              "usando '", col_uf, "' (coluna sem nome restante após excluir a ",
+              "Rede) como identificação de Região/UF — os valores não são ",
+              "necessariamente siglas de 2 letras, confira abaixo.")
     }
   }
 

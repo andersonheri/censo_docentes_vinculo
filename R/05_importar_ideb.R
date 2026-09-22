@@ -177,6 +177,31 @@ ler_ideb_xlsx <- function(caminho_xlsx, coluna_ancora, aba = 1) {
   names(dados_bruto) <- trimws(names(dados_bruto))
   setDT(dados_bruto)
 
+  # 3) Colunas de valor do IDEB observado, uma por edição — padrão
+  #    confirmado na inspeção manual do arquivo: VL_OBSERVADO_<ano>.
+  #    Calculado ANTES da detecção de colunas de identificação porque é
+  #    usado logo abaixo para descartar linhas de rodapé.
+  cols_ideb <- grep("^VL_OBSERVADO_\\d{4}$", names(dados_bruto), value = TRUE)
+  if (length(cols_ideb) == 0) {
+    stop("Nenhuma coluna 'VL_OBSERVADO_<ano>' encontrada em ", caminho_xlsx,
+         ". O padrão de nome pode ter mudado — confira os nomes de coluna ",
+         "reais com names(readxl::read_excel('", caminho_xlsx, "', skip = ",
+         linha_cabecalho - 1, ")).")
+  }
+
+  # 3b) Descarta linhas de rodapé/nota (ex.: "Fonte: MEC/Inep", "(*) Média
+  # calculada a partir de...") que a planilha do INEP deixa no final,
+  # abaixo da última linha de dado real. Como essas linhas de nota não
+  # têm nenhum valor de IDEB preenchido (só texto explicativo em uma
+  # célula mesclada), o critério "tem pelo menos 1 edição não-NA" separa
+  # dado real de rodapé sem depender de saber a última linha de dado.
+  n_antes <- nrow(dados_bruto)
+  linhas_com_dado <- rowSums(!is.na(dados_bruto[, ..cols_ideb])) > 0
+  dados_bruto <- dados_bruto[linhas_com_dado]
+  message("    [ok] ", n_antes - nrow(dados_bruto), " linha(s) de rodapé/nota ",
+          "descartada(s) (sem nenhum valor de IDEB preenchido); ",
+          nrow(dados_bruto), " linhas de dado real restantes")
+
   # Colunas sem nome (restos de mesclagem) e duplicadas viram NA/"...N"
   # pelo próprio readxl. A maioria é lixo de mesclagem e pode ser
   # descartada, mas no arquivo de UF/região a própria coluna de
@@ -185,7 +210,7 @@ ler_ideb_xlsx <- function(caminho_xlsx, coluna_ancora, aba = 1) {
   # nada) é mantido à parte para o fallback por valor mais abaixo.
   dados <- dados_bruto[, !grepl("^\\.\\.\\.|^NA$|^$", names(dados_bruto)), with = FALSE]
 
-  # 3) Colunas de identificação, localizadas por nome (não por posição).
+  # 4) Colunas de identificação, localizadas por nome (não por posição).
   col_uf    <- grep("^SG_UF$|^UF$|^CO_UF$|Sigla da UF", names(dados), value = TRUE)[1]
   col_mun   <- grep("^CO_MUNICIPIO$", names(dados), value = TRUE)[1]
   # Regex de MUNICIPIO sozinho também casaria com "CO_MUNICIPIO" (código);
@@ -198,12 +223,13 @@ ler_ideb_xlsx <- function(caminho_xlsx, coluna_ancora, aba = 1) {
   )[1]
   col_rede  <- grep("^REDE$", names(dados), value = TRUE, ignore.case = TRUE)[1]
 
-  # 3b) Fallback POR VALOR (não por nome): se nenhuma coluna com nome
+  # 4b) Fallback POR VALOR (não por nome): se nenhuma coluna com nome
   # SG_UF/UF foi encontrada, procura entre as colunas SEM NOME (as que
   # foram descartadas de `dados` acima) uma cujos valores sejam quase
   # todos siglas de UF ou nomes de região — típico do arquivo de
   # UF/região, cuja coluna de identificação não tem rótulo na linha de
-  # cabeçalho achatada.
+  # cabeçalho achatada. Já roda sobre `dados_bruto` SEM as linhas de
+  # rodapé (passo 3b), então o texto de nota não atrapalha mais aqui.
   if (is.na(col_uf) && is.na(col_mun)) {
     vocabulario_uf <- c(names(uf_regiao), unique(uf_regiao), "Brasil", "BR")
     candidatos <- names(dados_bruto)[vapply(dados_bruto, function(col) {
@@ -220,10 +246,6 @@ ler_ideb_xlsx <- function(caminho_xlsx, coluna_ancora, aba = 1) {
     }
   }
 
-  # 4) Colunas de valor do IDEB observado, uma por edição — padrão
-  #    confirmado na inspeção manual do arquivo: VL_OBSERVADO_<ano>.
-  cols_ideb <- grep("^VL_OBSERVADO_\\d{4}$", names(dados), value = TRUE)
-
   message("    Colunas de identificação encontradas: ",
           paste(na.omit(c(col_uf, col_mun, col_nome, col_rede)), collapse = ", "))
   message("    Colunas de IDEB (VL_OBSERVADO_<ano>) encontradas: ",
@@ -233,12 +255,6 @@ ler_ideb_xlsx <- function(caminho_xlsx, coluna_ancora, aba = 1) {
             paste(sort(unique(dados[[col_uf]])), collapse = " | "))
   }
 
-  if (length(cols_ideb) == 0) {
-    stop("Nenhuma coluna 'VL_OBSERVADO_<ano>' encontrada em ", caminho_xlsx,
-         ". O padrão de nome pode ter mudado — confira os nomes de coluna ",
-         "reais com names(readxl::read_excel('", caminho_xlsx, "', skip = ",
-         linha_cabecalho - 1, ")).")
-  }
   if (is.na(col_mun) && is.na(col_uf)) {
     stop("Não encontrei nem CO_MUNICIPIO nem SG_UF/UF em ", caminho_xlsx, ".")
   }

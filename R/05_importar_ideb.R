@@ -60,6 +60,30 @@ urls_ideb <- c(
   regioes_ufs              = "https://download.inep.gov.br/ideb/resultados/divulgacao_regioes_ufs_ideb_2025.zip"
 )
 
+#' Baixa um arquivo tentando alguns métodos, na ordem, até um funcionar.
+#' No Windows o método padrão do download.file() (`wininet`) às vezes
+#' falha em HTTPS que `libcurl` resolve sem problema — por isso a
+#' tentativa múltipla, em vez de travar no primeiro método que falhar.
+baixar_com_fallback <- function(url, destino, metodos = c("libcurl", "wininet", "auto")) {
+  for (metodo in metodos) {
+    resultado <- tryCatch({
+      download.file(url, destino, mode = "wb", quiet = FALSE, method = metodo)
+      TRUE
+    }, error = function(e) {
+      message("    [falhou com method = '", metodo, "'] ", conditionMessage(e))
+      FALSE
+    })
+    if (isTRUE(resultado) && file.exists(destino) && file.size(destino) > 0) {
+      message("    [ok] Baixado com method = '", metodo, "'")
+      return(invisible(TRUE))
+    }
+  }
+  stop("Não consegui baixar ", url, " com nenhum dos métodos testados (",
+       paste(metodos, collapse = ", "), "). Se sua rede usa proxy/firewall ",
+       "corporativo, tente baixar esse arquivo manualmente pelo navegador e ",
+       "salvar em '", destino, "'.")
+}
+
 #' Baixa e descompacta um arquivo do IDEB, se ainda não existir localmente.
 #' Retorna o caminho do .xlsx extraído.
 baixar_ideb <- function(nome, url) {
@@ -67,9 +91,11 @@ baixar_ideb <- function(nome, url) {
   dir_extraido <- file.path(dir_raw_ideb, nome)
 
   if (!dir.exists(dir_extraido)) {
-    if (!file.exists(destino_zip)) {
+    # file.size() > 0 evita reaproveitar um .zip de 0 bytes/corrompido
+    # deixado por uma tentativa de download que falhou no meio.
+    if (!file.exists(destino_zip) || file.size(destino_zip) == 0) {
       message(">>> Baixando ", nome, "...")
-      download.file(url, destino_zip, mode = "wb", quiet = FALSE)
+      baixar_com_fallback(url, destino_zip)
     }
     message(">>> Descompactando ", nome, "...")
     unzip(destino_zip, exdir = dir_extraido)

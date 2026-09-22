@@ -2182,7 +2182,7 @@ vertical-align: -.125em;
   <ul class="collapse">
   <li><a href="#fonte-e-cobertura" id="toc-fonte-e-cobertura" class="nav-link" data-scroll-target="#fonte-e-cobertura"><span class="header-section-number">2.1</span> Fonte e cobertura</a></li>
   <li><a href="#vínculo-contratual-variável-e-cobertura" id="toc-vínculo-contratual-variável-e-cobertura" class="nav-link" data-scroll-target="#vínculo-contratual-variável-e-cobertura"><span class="header-section-number">2.2</span> Vínculo contratual: variável e cobertura</a></li>
-  <li><a href="#duas-bases-de-cálculo-para-as-percentagens-de-vínculo" id="toc-duas-bases-de-cálculo-para-as-percentagens-de-vínculo" class="nav-link" data-scroll-target="#duas-bases-de-cálculo-para-as-percentagens-de-vínculo"><span class="header-section-number">2.3</span> Duas bases de cálculo para as percentagens de vínculo</a></li>
+  <li><a href="#duas-formas-de-calcular-os-percentuais-de-vínculo" id="toc-duas-formas-de-calcular-os-percentuais-de-vínculo" class="nav-link" data-scroll-target="#duas-formas-de-calcular-os-percentuais-de-vínculo"><span class="header-section-number">2.3</span> Duas formas de calcular os percentuais de vínculo</a></li>
   <li><a href="#limitações-de-coleta" id="toc-limitações-de-coleta" class="nav-link" data-scroll-target="#limitações-de-coleta"><span class="header-section-number">2.4</span> Limitações de coleta</a></li>
   </ul></li>
   <li><a href="#panorama-geral-do-vínculo-contratual-dos-docentes" id="toc-panorama-geral-do-vínculo-contratual-dos-docentes" class="nav-link" data-scroll-target="#panorama-geral-do-vínculo-contratual-dos-docentes"><span class="header-section-number">3</span> Panorama geral do vínculo contratual dos docentes</a></li>
@@ -2266,14 +2266,19 @@ Contato: andersonheri@gmail.com</p>
 <p>A variável de vínculo contratual do docente (<code>QT_DOC_BAS_VINCULO_CONCUR</code>, <code>_CONTRA</code>, <code>_TERCEIR</code>, <code>_CLT</code>) só passou a existir no Censo Escolar a partir da edição de 2025 — confirmado exaustivamente nos microdados de 2015 a 2024, onde a variável simplesmente não existe. Por esse motivo, toda a análise de vínculo contratual deste relatório é um retrato do ano de 2025, sem série histórica.</p>
 <p>Essa variável só é informada para a rede pública. A rede privada não reporta essa informação ao Censo — as quatro categorias de vínculo aparecem como zero para 100% dos seus docentes, o que é coerente com a própria natureza da variável (vínculo estatutário/CLT/temporário é um conceito de gestão de pessoal do setor público). A rede privada representa <strong>651.655 docentes</strong> da educação básica em 2025 (<strong>21,8%</strong> do total), e todos eles ficam fora do indicador de vínculo.</p>
 </section>
-<section id="duas-bases-de-cálculo-para-as-percentagens-de-vínculo" class="level2" data-number="2.3">
-<h2 data-number="2.3" class="anchored" data-anchor-id="duas-bases-de-cálculo-para-as-percentagens-de-vínculo"><span class="header-section-number">2.3</span> Duas bases de cálculo para as percentagens de vínculo</h2>
-<p>Ao longo do relatório, os percentuais de vínculo (concursado, contratado, CLT, terceirizado) aparecem calculados sobre duas bases diferentes, dependendo da comparação:</p>
+<section id="duas-formas-de-calcular-os-percentuais-de-vínculo" class="level2" data-number="2.3">
+<h2 data-number="2.3" class="anchored" data-anchor-id="duas-formas-de-calcular-os-percentuais-de-vínculo"><span class="header-section-number">2.3</span> Duas formas de calcular os percentuais de vínculo</h2>
+<p>Ao longo do relatório, os percentuais de vínculo (concursado, contratado, CLT, terceirizado) aparecem calculados de duas formas diferentes, dependendo da comparação. As duas usam exatamente o mesmo numerador (o número de docentes contratados, por exemplo) — a diferença está só no denominador:</p>
 <ul>
-<li><strong>(a) sobre o total de docentes do grupo</strong> (denominador = total de docentes da educação básica daquele grupo, incluindo a rede privada quando o grupo mistura redes, como uma UF ou um município). Essa é a base usada nos rankings por município e por UF.</li>
-<li><strong>(b) sobre o subtotal de docentes com vínculo efetivamente informado</strong> (soma das quatro categorias de vínculo, que na prática coincide com a rede pública). Essa é a base usada nas comparações por rede de ensino, localização urbana/rural, região e no total nacional.</li>
+<li><strong>% sobre o total geral de docentes</strong> do grupo — o denominador inclui a rede privada, mesmo que ela não informe vínculo. É a forma usada nos rankings por município e por UF (onde rede pública e privada estão misturadas).</li>
+<li><strong>% sobre os docentes com vínculo informado</strong> — o denominador exclui quem não informa essa variável (ou seja, na prática, exclui a rede privada). É a forma usada nas comparações por rede de ensino, localização urbana/rural, região e no total nacional.</li>
 </ul>
-<p>Como o “não informado” é, na prática, quase inteiramente a rede privada, os dois cálculos convergem dentro de um grupo 100% público e diferem quando o grupo mistura rede pública e privada. Nacionalmente, <strong>32,3%</strong> do total geral de docentes são contratados (base a), mas <strong>40,8%</strong> dos docentes com vínculo informado são contratados (base b). Cada seção deste relatório indica qual base está sendo usada.</p>
+<p>Um exemplo concreto com números reais deixa isso claro. Nacionalmente, há <strong>967.599 docentes contratados</strong> — esse número não muda, seja qual for a conta. O que muda é por quanto ele é dividido:</p>
+<ul>
+<li>Dividido pelo <strong>total geral de docentes</strong> (2.992.045, incluindo a rede privada), esses contratados representam <strong>32,3%</strong>.</li>
+<li>Dividido só pelos <strong>docentes com vínculo informado</strong> (2.369.202, essencialmente a rede pública, já que a privada não entra nessa conta), o mesmo número de contratados representa <strong>40,8%</strong>.</li>
+</ul>
+<p>O percentual sobe de 32,3% para 40,8% não porque haja mais gente contratada, mas porque o denominador encolhe: ao tirar a rede privada da conta, o mesmo grupo de contratados passa a representar uma fatia maior do que resta. Cada seção deste relatório informa qual das duas formas está usando.</p>
 </section>
 <section id="limitações-de-coleta" class="level2" data-number="2.4">
 <h2 data-number="2.4" class="anchored" data-anchor-id="limitações-de-coleta"><span class="header-section-number">2.4</span> Limitações de coleta</h2>
@@ -2287,8 +2292,8 @@ Contato: andersonheri@gmail.com</p>
 </section>
 <section id="panorama-geral-do-vínculo-contratual-dos-docentes" class="level1" data-number="3">
 <h1 data-number="3"><span class="header-section-number">3</span> Panorama geral do vínculo contratual dos docentes</h1>
-<p>O Brasil tinha, em 2025, <strong>2.992.045 docentes</strong> na educação básica. Considerando o total geral de docentes (base a, incluindo a rede privada, que não informa vínculo): <strong>44,9%</strong> são concursados/efetivos, <strong>32,3%</strong> são contratados (não concursados), <strong>1,4%</strong> estão em regime CLT, <strong>0,5%</strong> são terceirizados, e os demais (essencialmente a rede privada) não têm essa informação coletada.</p>
-<p>Restringindo a leitura aos <strong>2.369.202 docentes</strong> com vínculo efetivamente informado (base b, essencialmente a rede pública), o quadro se torna o da figura abaixo.</p>
+<p>O Brasil tinha, em 2025, <strong>2.992.045 docentes</strong> na educação básica. Sobre o total geral de docentes (incluindo a rede privada, que não informa vínculo): <strong>44,9%</strong> são concursados/efetivos, <strong>32,3%</strong> são contratados (não concursados), <strong>1,4%</strong> estão em regime CLT, <strong>0,5%</strong> são terceirizados, e os demais (essencialmente a rede privada) não têm essa informação coletada.</p>
+<p>Restringindo a leitura aos <strong>2.369.202 docentes com vínculo efetivamente informado</strong> (essencialmente a rede pública), o quadro se torna o da figura abaixo.</p>
 <div class="cell">
 <div class="cell-output-display">
 <div>
@@ -2302,7 +2307,7 @@ Contato: andersonheri@gmail.com</p>
 </section>
 <section id="vínculo-por-rede-de-ensino" class="level1" data-number="4">
 <h1 data-number="4"><span class="header-section-number">4</span> Vínculo por rede de ensino</h1>
-<p>A proporção de docentes contratados varia de forma muito acentuada entre as quatro redes de ensino. Os percentuais desta seção usam a base (b): são calculados sobre o subtotal de docentes com vínculo informado dentro de cada rede.</p>
+<p>A proporção de docentes contratados varia de forma muito acentuada entre as quatro redes de ensino. Os percentuais desta seção são calculados sobre os docentes com vínculo informado dentro de cada rede (ver seção “Duas formas de calcular os percentuais de vínculo”).</p>
 <div class="cell">
 <div class="cell-output-display">
 <div>
@@ -2348,7 +2353,7 @@ Contato: andersonheri@gmail.com</p>
 </div>
 </div>
 </div>
-<p>Ao nível de UF (base a, % contratados sobre o total geral de docentes da UF, média nacional de 32,3%), a variação é a maior de toda a análise territorial: o ranking vai de 10,5% em RJ a 67,7% no AC — uma diferença de mais de 6 vezes entre os extremos.</p>
+<p>Ao nível de UF (% contratados sobre o total geral de docentes da UF, média nacional de 32,3%), a variação é a maior de toda a análise territorial: o ranking vai de 10,5% em RJ a 67,7% no AC — uma diferença de mais de 6 vezes entre os extremos.</p>
 <div class="cell">
 <div class="cell-output-display">
 <div>

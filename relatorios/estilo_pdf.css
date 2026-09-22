@@ -25,6 +25,15 @@ h1.title {
   text-align: center;
 }
 
+div.identificacao {
+  text-align: center;
+  font-size: 10pt;
+  color: #555;
+  margin-top: 0.6in;
+}
+
+div.identificacao p { text-align: center; }
+
 p.subtitle {
   font-size: 14pt;
   text-align: center;

@@ -8,6 +8,14 @@ lang: "pt-BR"
 subtitle: Relatório descritivo — Censo Escolar (INEP), com cruzamento ao IDEB
 ---
 
+::: {.identificacao}
+
+Contato: andersonheri@gmail.com
+
+**Fonte dos dados**: microdados públicos do Censo Escolar da Educação Básica e do IDEB (INEP). Os dados de origem são públicos; a síntese, as figuras e a interpretação reunidas neste relatório constituem material de entrega desta consultoria.
+
+:::
+
 ```{=openxml}
 <w:p><w:r><w:br w:type="page"/></w:r></w:p>
 ```
@@ -157,16 +165,16 @@ Na zona **rural**, os anos finais do fundamental são a maior categoria ao longo
 
 Uma pergunta natural, dado o retrato acima, é se a maior dependência de docentes contratados está associada a um IDEB mais baixo. Essa seção testa essa hipótese, restrita à rede pública (federal, estadual e municipal, exceto no ensino médio a nível de UF, onde se usa a rede estadual como proxy — ver seção 2), no mesmo ano de referência (2025).
 
-| Nível | Etapa | N | Pearson (r) | p-valor (Pearson) | Spearman (ρ) | p-valor (Spearman) |
-|---|---|---:|---:|---:|---:|---:|
-| Município | Anos Iniciais | 5.478 | -0,053 | 8,1 × 10⁻⁵ | -0,094 | 3,4 × 10⁻¹² |
-| Município | Anos Finais | 5.491 | -0,039 | 3,6 × 10⁻³ | -0,088 | 6,5 × 10⁻¹¹ |
-| Município | Ensino Médio | 5.428 | -0,110 | 5,6 × 10⁻¹⁶ | -0,125 | 2,6 × 10⁻²⁰ |
-| UF | Anos Iniciais | 27 | 0,111 | 0,581 | 0,121 | 0,547 |
-| UF | Anos Finais | 27 | 0,056 | 0,780 | 0,101 | 0,618 |
-| UF | Ensino Médio | 27 | 0,077 | 0,702 | 0,062 | 0,757 |
+| Nível | Etapa | N | Pearson (r) | Significância (Pearson) | Spearman (ρ) | Significância (Spearman) |
+|---|---|---:|---:|---|---:|---|
+| Município | Anos Iniciais | 5.478 | -0,053 | p < 0,01 | -0,094 | p < 0,01 |
+| Município | Anos Finais | 5.491 | -0,039 | p < 0,01 | -0,088 | p < 0,01 |
+| Município | Ensino Médio | 5.428 | -0,110 | p < 0,01 | -0,125 | p < 0,01 |
+| UF | Anos Iniciais | 27 | 0,111 | p > 0,05 | 0,121 | p > 0,05 |
+| UF | Anos Finais | 27 | 0,056 | p > 0,05 | 0,101 | p > 0,05 |
+| UF | Ensino Médio | 27 | 0,077 | p > 0,05 | 0,062 | p > 0,05 |
 
-A leitura correta desses números exige separar dois conceitos que costumam ser confundidos: **significância estatística** e **relevância prática**. No nível **município**, com uma amostra grande (entre 5.400 e 5.500 municípios), todas as correlações são estatisticamente significativas (p-valores muito pequenos, bem abaixo de 0,05). Mas os coeficientes de correlação são muito baixos: variam entre -0,04 e -0,11, o que em termos de magnitude é uma correlação **fraca a desprezível**. Em outras palavras: com uma amostra grande, mesmo relações praticamente inexistentes tendem a aparecer como "estatisticamente significativas" — a significância aqui é, em boa parte, um artefato do tamanho da amostra, não evidência de uma relação forte ou substantiva entre as duas variáveis. No nível **UF**, com apenas 27 observações, nenhuma correlação é estatisticamente significativa (todos os p-valores muito acima de 0,05, entre 0,55 e 0,78). Aqui não há evidência estatística de associação alguma.
+A leitura correta desses números exige separar dois conceitos que costumam ser confundidos: **significância estatística** e **relevância prática**. No nível **município**, com uma amostra grande (entre 5.400 e 5.500 municípios), todas as correlações são estatisticamente significativas a 1% (p < 0,01). Mas os coeficientes de correlação são muito baixos: variam entre -0,04 e -0,11, o que em termos de magnitude é uma correlação **fraca a desprezível**. Em outras palavras: com uma amostra grande, mesmo relações praticamente inexistentes tendem a aparecer como "estatisticamente significativas" — a significância aqui é, em boa parte, um artefato do tamanho da amostra, não evidência de uma relação forte ou substantiva entre as duas variáveis. No nível **UF**, com apenas 27 observações, nenhuma correlação é estatisticamente significativa (p > 0,05 em todos os casos). Aqui não há evidência estatística de associação alguma.
 
 O sinal da correlação, quando estatisticamente detectável (nível município), é sempre **negativo**: mais docentes contratados está associado a um IDEB levemente mais baixo, nunca mais alto. Esse sinal é consistente com a hipótese inicial (mais contratação temporária, pior desempenho), mas sua magnitude é pequena demais para sustentar qualquer afirmação de que o tipo de vínculo contratual seja, isoladamente, um fator explicativo relevante das diferenças de IDEB entre municípios. Vale notar que a etapa com a correlação (ainda fraca) mais forte é o Ensino Médio (r = -0,110), o que pode refletir o fato de que, nessa etapa, a base pública é essencialmente a rede estadual (mais homogênea em termos de gestão), tornando o sinal um pouco menos diluído do que nos anos iniciais e finais, que combinam três redes distintas.
 

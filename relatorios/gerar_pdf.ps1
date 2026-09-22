@@ -16,7 +16,9 @@
 #      flags de linha de comando do Edge para desativar o
 #      cabeçalho/rodapé do navegador (--print-to-pdf-no-header etc.)
 #      não funcionam nesta versão, então falamos direto com o
-#      protocolo (Page.printToPDF, displayHeaderFooter: $false).
+#      protocolo (Page.printToPDF), passando um footerTemplate
+#      próprio (só número de página, sem data/URL/título) em vez do
+#      cabeçalho/rodapé padrão do navegador.
 #
 # Pré-requisito: pandoc (empacotado com o RStudio/Quarto) e o
 # Microsoft Edge instalados nos caminhos abaixo. Ajuste se necessário.
@@ -74,14 +76,18 @@ function Receive-CDP() {
     return [System.Text.Encoding]::UTF8.GetString($ms.ToArray())
 }
 
+$footerTemplate = '<div style="width:100%; font-size:9px; text-align:center; color:#888; font-family: Arial, sans-serif;"><span class="pageNumber"></span></div>'
+
 Send-CDP @{
     id     = 1
     method = "Page.printToPDF"
     params = @{
-        printBackground   = $true
-        displayHeaderFooter = $false
-        preferCSSPageSize = $true
-        marginTop = 0; marginBottom = 0; marginLeft = 0; marginRight = 0
+        printBackground     = $true
+        displayHeaderFooter = $true
+        headerTemplate      = "<span></span>"
+        footerTemplate      = $footerTemplate
+        preferCSSPageSize   = $true
+        marginTop = 0; marginBottom = 0.4; marginLeft = 0; marginRight = 0
     }
 }
 $resp = Receive-CDP

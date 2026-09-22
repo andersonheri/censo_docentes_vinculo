@@ -17,3 +17,6 @@ data/processed/*
 # SO
 .DS_Store
 Thumbs.db
+
+# Preview HTML gerado automaticamente pelo RStudio ao abrir .md
+relatorios/*.html

@@ -12,6 +12,10 @@ subtitle: Relatório descritivo — Censo Escolar (INEP), com cruzamento ao IDEB
 <w:p><w:r><w:br w:type="page"/></w:r></w:p>
 ```
 
+```{=html}
+<div style="page-break-before: always;"></div>
+```
+
 ## Sumário
 
 - Resumo
@@ -30,6 +34,10 @@ subtitle: Relatório descritivo — Censo Escolar (INEP), com cruzamento ao IDEB
 
 ```{=openxml}
 <w:p><w:r><w:br w:type="page"/></w:r></w:p>
+```
+
+```{=html}
+<div style="page-break-before: always;"></div>
 ```
 
 ## Resumo

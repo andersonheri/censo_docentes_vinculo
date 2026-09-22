@@ -5,8 +5,31 @@ author:
 - Anderson Henrique
 date: "Setembro de 2026"
 lang: "pt-BR"
-toc-title: "Sumário"
 ---
+
+```{=openxml}
+<w:p><w:r><w:br w:type="page"/></w:r></w:p>
+```
+
+```{=html}
+<div style="page-break-before: always;"></div>
+```
+
+# Sumário {.unnumbered}
+
+- Identificação
+- Resumo
+- 1 Introdução e objetivo
+- 2 Dados e método
+- 3 Panorama geral do vínculo contratual dos docentes (Brasil, 2025)
+- 4 Vínculo por rede de ensino (dependência administrativa)
+- 5 Vínculo por localização (urbana e rural)
+- 6 Vínculo por região e Unidade da Federação
+- 7 Heterogeneidade municipal do vínculo contratual
+- 8 Evolução do quadro docente por etapa de ensino (2015 a 2025)
+- 9 Cruzamento entre vínculo contratual e desempenho educacional (IDEB)
+- 10 Discussão e síntese das conclusões
+- 11 Fontes e material de apoio
 
 ```{=openxml}
 <w:p><w:r><w:br w:type="page"/></w:r></w:p>

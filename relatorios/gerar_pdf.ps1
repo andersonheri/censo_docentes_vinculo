@@ -32,7 +32,7 @@ $html   = Join-Path $pasta "relatorio_descritivo_docentes_2025.html"
 $pdf    = Join-Path $pasta "relatorio_descritivo_docentes_2025.pdf"
 
 Write-Host ">>> Convertendo .md para .html autocontido..."
-& $pandoc $md -o $html --standalone --embed-resources --resource-path=$pasta --css=$css --toc --toc-depth=2 --number-sections
+& $pandoc $md -o $html --standalone --embed-resources --resource-path=$pasta --css=$css --number-sections
 if ($LASTEXITCODE -ne 0) { throw "pandoc falhou" }
 
 Write-Host ">>> Imprimindo .html para PDF via Edge (CDP)..."

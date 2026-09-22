@@ -59,8 +59,29 @@ painel_docentes <- readRDS(caminho_painel)
 ideb_municipios <- readRDS(caminho_ideb_mun)
 ideb_uf         <- readRDS(caminho_ideb_uf)
 
+# ── Normalização de texto (acento-insensível) ────────────────────────────────
+# Strings vindas de um .xlsx podem chegar em uma forma Unicode diferente da
+# usada aqui no código-fonte (ex.: "á" como um único caractere pré-composto
+# vs. "a" + acento combinante) — visualmente idênticas, mas que falham numa
+# comparação exata como REDE == "Pública". `sem_acento()` remove essa
+# ambiguidade comparando sem acento, em maiúsculas.
+sem_acento <- function(x) toupper(trimws(iconv(as.character(x), to = "ASCII//TRANSLIT")))
+
 # Rótulos de etapa alinhados entre os dois lados do cruzamento.
 etapas_ideb <- c("Anos Iniciais", "Anos Finais", "Ensino Médio")
+
+# Recanoniza etapa_ideb pela mesma razão (garante que os nomes das colunas
+# geradas pelo dcast() mais abaixo batam exatamente com `etapas_ideb`).
+normalizar_etapa <- function(x) {
+  fcase(
+    sem_acento(x) == "ANOS INICIAIS", "Anos Iniciais",
+    sem_acento(x) == "ANOS FINAIS",   "Anos Finais",
+    sem_acento(x) == "ENSINO MEDIO",  "Ensino Médio",
+    default = as.character(x)
+  )
+}
+ideb_municipios[, etapa_ideb := normalizar_etapa(etapa_ideb)]
+ideb_uf[, etapa_ideb := normalizar_etapa(etapa_ideb)]
 
 # ============================================================
 # BLOCO 1 — Base MUNICÍPIO x etapa (2025, rede pública)
@@ -85,11 +106,20 @@ docentes_mun_2025[, pct_contratados := round(100 * doc_vinculo_contrat / doc_bas
 # ── Lado IDEB: rede pública, edição 2025, formato largo (1 coluna por
 #    etapa) ───────────────────────────────────────────────────────────────
 ideb_mun_2025 <- ideb_municipios[
-  ano == 2025 & REDE == "Pública" & etapa_ideb %in% etapas_ideb
+  ano == 2025 & sem_acento(REDE) == "PUBLICA" & etapa_ideb %in% etapas_ideb
 ]
 ideb_mun_2025_wide <- dcast(
   ideb_mun_2025, CO_MUNICIPIO ~ etapa_ideb, value.var = "ideb"
 )
+
+faltando <- setdiff(etapas_ideb, names(ideb_mun_2025_wide))
+if (length(faltando) > 0) {
+  stop("Depois de filtrar IDEB município (ano 2025, REDE Pública), faltam ",
+       "colunas de etapa: ", paste(faltando, collapse = ", "), ". ",
+       "Linhas restantes no filtro: ", nrow(ideb_mun_2025), ". Valores de ",
+       "REDE disponíveis em ideb_municipios: ",
+       paste(sort(unique(ideb_municipios$REDE)), collapse = " | "))
+}
 
 base_mun_2025 <- merge(docentes_mun_2025, ideb_mun_2025_wide,
                         by = "CO_MUNICIPIO", all.x = TRUE)
@@ -116,9 +146,18 @@ docentes_uf_2025[, pct_contratados := round(100 * doc_vinculo_contrat / doc_bas,
 # ideb_uf: NIVEL == "UF" filtra as 27 UFs (exclui as 5 linhas de região,
 # que ficaram com SG_UF = NA — ver 05_importar_ideb.R).
 ideb_uf_2025 <- ideb_uf[
-  ano == 2025 & REDE == "Pública" & NIVEL == "UF" & etapa_ideb %in% etapas_ideb
+  ano == 2025 & sem_acento(REDE) == "PUBLICA" & NIVEL == "UF" & etapa_ideb %in% etapas_ideb
 ]
 ideb_uf_2025_wide <- dcast(ideb_uf_2025, SG_UF ~ etapa_ideb, value.var = "ideb")
+
+faltando_uf <- setdiff(etapas_ideb, names(ideb_uf_2025_wide))
+if (length(faltando_uf) > 0) {
+  stop("Depois de filtrar IDEB UF (ano 2025, REDE Pública, NIVEL UF), faltam ",
+       "colunas de etapa: ", paste(faltando_uf, collapse = ", "), ". ",
+       "Linhas restantes no filtro: ", nrow(ideb_uf_2025), ". Valores de ",
+       "REDE disponíveis em ideb_uf: ",
+       paste(sort(unique(ideb_uf$REDE)), collapse = " | "))
+}
 
 base_uf_2025 <- merge(docentes_uf_2025, ideb_uf_2025_wide, by = "SG_UF", all.x = TRUE)
 

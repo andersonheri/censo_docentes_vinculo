@@ -327,6 +327,13 @@ ler_ideb_xlsx <- function(caminho_xlsx, coluna_ancora, aba = 1) {
   }
 
   # 5) Formato longo: 1 linha por unidade x rede x edição.
+  # Algumas edições vêm 100% numéricas e outras com texto (ND/ND*/"-"),
+  # então o readxl lê as colunas VL_OBSERVADO_<ano> com tipos diferentes
+  # entre si. Uniformiza para character ANTES do melt só para evitar o
+  # aviso de coerção do data.table — a conversão para numérico de fato
+  # acontece logo abaixo de qualquer forma.
+  dados[, (cols_ideb) := lapply(.SD, as.character), .SDcols = cols_ideb]
+
   longo <- melt(
     dados,
     id.vars       = unname(cols_id),
@@ -397,6 +404,48 @@ lista_ideb_uf <- lapply(names(abas_uf), function(etapa) {
 })
 
 ideb_uf <- rbindlist(lista_ideb_uf, use.names = TRUE, fill = TRUE)
+
+# ── Traduz a coluna de identificação para SG_UF de verdade ──────────────────
+# No arquivo de UF/região a coluna "SG_UF" (nome herdado de ler_ideb_xlsx,
+# pensado para o caso normal) na verdade veio por eliminação e contém
+# nomes por extenso e abreviações não padronizadas do INEP — confirmado
+# rodando o script: exatamente os 27 estados + 5 regiões abaixo, sem
+# nenhum outro valor. Mapa construído à mão a partir dessa lista
+# verificada (não é um chute).
+mapa_nome_para_sigla <- c(
+  "Acre" = "AC", "Alagoas" = "AL", "Amapá" = "AP", "Amazonas" = "AM",
+  "Bahia" = "BA", "Ceará" = "CE", "Distrito Federal" = "DF",
+  "Espírito Santo" = "ES", "Goiás" = "GO", "M. G. do Sul" = "MS",
+  "Maranhão" = "MA", "Mato Grosso" = "MT", "Minas Gerais" = "MG",
+  "Pará" = "PA", "Paraíba" = "PB", "Paraná" = "PR", "Pernambuco" = "PE",
+  "Piauí" = "PI", "R. G. do Norte" = "RN", "R. G. do Sul" = "RS",
+  "Rio de Janeiro" = "RJ", "Rondônia" = "RO", "Roraima" = "RR",
+  "Santa Catarina" = "SC", "São Paulo" = "SP", "Sergipe" = "SE",
+  "Tocantins" = "TO"
+)
+nomes_regiao <- c("Norte", "Nordeste", "Centro-Oeste", "Sudeste", "Sul")
+
+nao_mapeados <- setdiff(unique(ideb_uf$SG_UF), c(names(mapa_nome_para_sigla), nomes_regiao))
+if (length(nao_mapeados) > 0) {
+  warning("[ALERTA] Valores não reconhecidos na coluna de UF/região do IDEB: ",
+          paste(nao_mapeados, collapse = ", "),
+          " — ficam como NA em SG_UF e sem NIVEL. Confira mapa_nome_para_sigla ",
+          "em 05_importar_ideb.R.")
+}
+
+ideb_uf[, `:=`(
+  NIVEL = fcase(
+    SG_UF %in% names(mapa_nome_para_sigla), "UF",
+    SG_UF %in% nomes_regiao,                "Região",
+    default = NA_character_
+  ),
+  NO_UF_OU_REGIAO = SG_UF,
+  SG_UF = mapa_nome_para_sigla[SG_UF]  # NA para linhas de região (nomes_regiao não está no mapa)
+)]
+
+message("    [ok] Coluna de UF/região traduzida: ",
+        sum(ideb_uf$NIVEL == "UF", na.rm = TRUE), " linhas de UF (com sigla), ",
+        sum(ideb_uf$NIVEL == "Região", na.rm = TRUE), " linhas de região (SG_UF = NA)")
 
 message("\n>>> IDEB UF/região: ", format(nrow(ideb_uf), big.mark = ",", decimal.mark = "."), " linhas")
 

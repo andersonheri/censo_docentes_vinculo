@@ -85,16 +85,26 @@ direto do INEP (não precisa baixar manualmente) e salva em
 source("R/05_importar_ideb.R")
 ```
 
-A planilha do IDEB tem um cabeçalho bem mais complexo que os microdados
-do Censo (múltiplas linhas mescladas, estrutura que muda entre edições
-antigas e recentes), e essa estrutura foi inspecionada manualmente a
-partir do XML bruto do `.xlsx` — sem conseguir testar a leitura em R.
-Por isso o script localiza a linha de cabeçalho e as colunas por
-**nome/padrão** (ex.: células `CO_MUNICIPIO`, `VL_OBSERVADO_<ano>`), não
-por posição fixa, e imprime no console o que detectou em cada arquivo
-(linha de cabeçalho, colunas de identificação, edições encontradas,
-valores únicos de "Rede"). **Rode esse script primeiro e confira essas
-mensagens** antes de qualquer cruzamento com os docentes — se algo não
+Já testado de ponta a ponta (376.990 linhas de IDEB por município ×
+etapa × rede × edição, 3.872 linhas por UF/região). A planilha do IDEB
+tem um cabeçalho bem mais complexo que os microdados do Censo
+(múltiplas linhas mescladas, colunas de identificação sem rótulo em
+algumas abas, linhas de nota de rodapé misturadas nos dados, estrutura
+que muda entre edições antigas e recentes), então o script localiza a
+linha de cabeçalho e as colunas por **nome/padrão** (ex.:
+`CO_MUNICIPIO`, `VL_OBSERVADO_<ano>`) e por **conteúdo** quando não há
+nome (ex.: a coluna de Rede é reconhecida pelo vocabulário fechado
+Total/Pública/Estadual/Municipal/Privada/Federal), em vez de posição
+fixa. No arquivo de UF/região a coluna de identificação vem com nomes
+por extenso e abreviações do INEP (ex.: "R. G. do Norte" para Rio
+Grande do Norte) em vez de sigla — o script traduz isso para `SG_UF`
+de verdade usando um mapa fixo (`mapa_nome_para_sigla`, verificado
+contra a lista completa e real de valores da planilha), preenchendo
+`SG_UF = NA` e `NIVEL = "Região"` nas 5 linhas que são agregados
+regionais (Norte, Nordeste, Centro-Oeste, Sudeste, Sul), não estados.
+O script imprime no console o que detectou em cada arquivo (linha de
+cabeçalho, colunas de identificação, edições encontradas, valores
+únicos de "Rede") — se o INEP mudar o arquivo no futuro e algo não
 bater, a mensagem de erro aponta onde olhar no arquivo original.
 
 ## Saídas

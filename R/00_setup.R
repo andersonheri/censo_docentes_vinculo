@@ -79,3 +79,32 @@ vars_doc_vinculo <- c(
   "QT_DOC_BAS_VINCULO_TERCEIR",  # terceirizado
   "QT_DOC_BAS_VINCULO_CLT"       # regime CLT
 )
+
+# ── Rótulos (labels) compartilhados entre os scripts de tabelas e gráficos ──
+# Centralizados aqui para que 02_distribuicoes.R e 03_visualizacoes.R usem
+# exatamente os mesmos textos/códigos.
+
+labels_dependencia <- c(`1` = "Federal", `2` = "Estadual",
+                         `3` = "Municipal", `4` = "Privada")
+
+labels_localizacao <- c(`1` = "Urbana", `2` = "Rural")
+
+labels_vinculo <- c(
+  QT_DOC_BAS_VINCULO_CONCUR  = "Concursado/efetivo",
+  QT_DOC_BAS_VINCULO_CONTRA  = "Contratado (não concursado)",
+  QT_DOC_BAS_VINCULO_TERCEIR = "Terceirizado",
+  QT_DOC_BAS_VINCULO_CLT     = "CLT"
+)
+
+# Mapa UF -> região, usado para agregações regionais (não vem pronto nos
+# microdados do Censo — as 27 UFs são combinadas manualmente aqui).
+uf_regiao <- c(
+  AC = "Norte", AP = "Norte", AM = "Norte", PA = "Norte",
+  RO = "Norte", RR = "Norte", TO = "Norte",
+  AL = "Nordeste", BA = "Nordeste", CE = "Nordeste", MA = "Nordeste",
+  PB = "Nordeste", PE = "Nordeste", PI = "Nordeste", RN = "Nordeste",
+  SE = "Nordeste",
+  DF = "Centro-Oeste", GO = "Centro-Oeste", MS = "Centro-Oeste", MT = "Centro-Oeste",
+  ES = "Sudeste", MG = "Sudeste", RJ = "Sudeste", SP = "Sudeste",
+  PR = "Sul", RS = "Sul", SC = "Sul"
+)

@@ -5,13 +5,26 @@
 #
 # O QUE ESTE SCRIPT FAZ:
 #   Lê o painel escola x ano gerado em 01_importar_docentes.R e produz
-#   3 tabelas-resumo, salvas em outputs/tables/:
+#   tabelas-resumo, salvas em outputs/tables/:
 #     - dist_docentes_etapa_2015_2025.csv
 #         total de docentes e distribuição por etapa, por ano (2015-2025)
 #     - dist_docentes_vinculo_2025.csv
 #         total de docentes e distribuição por vínculo contratual (só 2025)
 #     - dist_docentes_vinculo_dependencia_2025.csv
 #         o mesmo, quebrado por dependência administrativa (só 2025)
+#     - dist_docentes_vinculo_localizacao_2025.csv
+#         vínculo contratual por localização urbana/rural (só 2025)
+#     - dist_docentes_vinculo_uf_2025.csv
+#         vínculo contratual (4 categorias) por UF (só 2025)
+#     - dist_docentes_vinculo_regiao_2025.csv
+#         vínculo contratual por região geográfica (só 2025)
+#     - dist_docentes_etapa_dependencia_2015_2025.csv
+#         distribuição por etapa x dependência administrativa, série toda
+#     - dist_docentes_etapa_localizacao_2015_2025.csv
+#         distribuição por etapa x localização urbana/rural, série toda
+#
+# NOTA: vínculo contratual só existe em 2025 (ver README.md); etapa e
+# dependência/localização existem em todos os anos 2015-2025.
 #
 # PRÉ-REQUISITO: rodar 01_importar_docentes.R antes (ou garantir que
 # data/processed/painel_docentes_escola_2015_2025.rds já existe).
@@ -106,5 +119,132 @@ print(dist_vinculo_dependencia_2025)
 
 fwrite(dist_vinculo_dependencia_2025,
        file.path(dir_out, "dist_docentes_vinculo_dependencia_2025.csv"), sep = ";")
+
+# ============================================================
+# 4) Vínculo contratual por localização (urbana/rural) — só 2025
+# ============================================================
+# TP_LOCALIZACAO: 1 = Urbana, 2 = Rural
+
+dist_vinculo_localizacao_2025 <- painel_docentes[
+  NU_ANO_CENSO == 2025 & !is.na(TP_LOCALIZACAO),
+  .(
+    doc_bas             = sum(QT_DOC_BAS, na.rm = TRUE),
+    doc_vinculo_concur  = sum(QT_DOC_BAS_VINCULO_CONCUR,  na.rm = TRUE),
+    doc_vinculo_contrat = sum(QT_DOC_BAS_VINCULO_CONTRA,  na.rm = TRUE),
+    doc_vinculo_terceir = sum(QT_DOC_BAS_VINCULO_TERCEIR, na.rm = TRUE),
+    doc_vinculo_clt     = sum(QT_DOC_BAS_VINCULO_CLT,     na.rm = TRUE)
+  ),
+  by = TP_LOCALIZACAO
+][order(TP_LOCALIZACAO)]
+
+dist_vinculo_localizacao_2025[, localizacao := labels_localizacao[as.character(TP_LOCALIZACAO)]]
+
+message("\n=== Vínculo contratual por localização urbana/rural (Brasil, 2025) ===")
+print(dist_vinculo_localizacao_2025)
+
+fwrite(dist_vinculo_localizacao_2025,
+       file.path(dir_out, "dist_docentes_vinculo_localizacao_2025.csv"), sep = ";")
+
+# ============================================================
+# 5) Vínculo contratual por UF (4 categorias) — só 2025
+# ============================================================
+
+dist_vinculo_uf_2025 <- painel_docentes[
+  NU_ANO_CENSO == 2025 & !is.na(SG_UF) & SG_UF != "",
+  .(
+    doc_bas             = sum(QT_DOC_BAS, na.rm = TRUE),
+    doc_vinculo_concur  = sum(QT_DOC_BAS_VINCULO_CONCUR,  na.rm = TRUE),
+    doc_vinculo_contrat = sum(QT_DOC_BAS_VINCULO_CONTRA,  na.rm = TRUE),
+    doc_vinculo_terceir = sum(QT_DOC_BAS_VINCULO_TERCEIR, na.rm = TRUE),
+    doc_vinculo_clt     = sum(QT_DOC_BAS_VINCULO_CLT,     na.rm = TRUE)
+  ),
+  by = SG_UF
+][order(SG_UF)]
+
+dist_vinculo_uf_2025[, `:=`(
+  pct_concur  = round(100 * doc_vinculo_concur  / doc_bas, 1),
+  pct_contrat = round(100 * doc_vinculo_contrat / doc_bas, 1),
+  pct_terceir = round(100 * doc_vinculo_terceir / doc_bas, 1),
+  pct_clt     = round(100 * doc_vinculo_clt     / doc_bas, 1)
+)]
+
+message("\n=== Vínculo contratual por UF (Brasil, 2025) ===")
+print(dist_vinculo_uf_2025)
+
+fwrite(dist_vinculo_uf_2025, file.path(dir_out, "dist_docentes_vinculo_uf_2025.csv"), sep = ";")
+
+# ============================================================
+# 6) Vínculo contratual por região geográfica — só 2025
+# ============================================================
+# Região não vem pronta nos microdados: derivada de SG_UF via uf_regiao
+# (definido em 00_setup.R).
+
+dist_vinculo_regiao_2025 <- painel_docentes[
+  NU_ANO_CENSO == 2025 & !is.na(SG_UF) & SG_UF != ""
+][, regiao := uf_regiao[SG_UF]][
+  !is.na(regiao),
+  .(
+    doc_bas             = sum(QT_DOC_BAS, na.rm = TRUE),
+    doc_vinculo_concur  = sum(QT_DOC_BAS_VINCULO_CONCUR,  na.rm = TRUE),
+    doc_vinculo_contrat = sum(QT_DOC_BAS_VINCULO_CONTRA,  na.rm = TRUE),
+    doc_vinculo_terceir = sum(QT_DOC_BAS_VINCULO_TERCEIR, na.rm = TRUE),
+    doc_vinculo_clt     = sum(QT_DOC_BAS_VINCULO_CLT,     na.rm = TRUE)
+  ),
+  by = regiao
+][order(regiao)]
+
+message("\n=== Vínculo contratual por região (Brasil, 2025) ===")
+print(dist_vinculo_regiao_2025)
+
+fwrite(dist_vinculo_regiao_2025,
+       file.path(dir_out, "dist_docentes_vinculo_regiao_2025.csv"), sep = ";")
+
+# ============================================================
+# 7) Etapa x dependência administrativa — série toda (2015-2025)
+# ============================================================
+
+dist_etapa_dependencia_ano <- painel_docentes[
+  !is.na(TP_DEPENDENCIA),
+  .(
+    doc_bas     = sum(QT_DOC_BAS,     na.rm = TRUE),
+    doc_inf     = sum(QT_DOC_INF,     na.rm = TRUE),
+    doc_fund_ai = sum(QT_DOC_FUND_AI, na.rm = TRUE),
+    doc_fund_af = sum(QT_DOC_FUND_AF, na.rm = TRUE),
+    doc_med     = sum(QT_DOC_MED,     na.rm = TRUE)
+  ),
+  by = .(NU_ANO_CENSO, TP_DEPENDENCIA)
+][order(NU_ANO_CENSO, TP_DEPENDENCIA)]
+
+dist_etapa_dependencia_ano[, dependencia := labels_dependencia[as.character(TP_DEPENDENCIA)]]
+
+message("\n=== Docentes por etapa x dependência administrativa (Brasil, 2015-2025) ===")
+print(dist_etapa_dependencia_ano)
+
+fwrite(dist_etapa_dependencia_ano,
+       file.path(dir_out, "dist_docentes_etapa_dependencia_2015_2025.csv"), sep = ";")
+
+# ============================================================
+# 8) Etapa x localização urbana/rural — série toda (2015-2025)
+# ============================================================
+
+dist_etapa_localizacao_ano <- painel_docentes[
+  !is.na(TP_LOCALIZACAO),
+  .(
+    doc_bas     = sum(QT_DOC_BAS,     na.rm = TRUE),
+    doc_inf     = sum(QT_DOC_INF,     na.rm = TRUE),
+    doc_fund_ai = sum(QT_DOC_FUND_AI, na.rm = TRUE),
+    doc_fund_af = sum(QT_DOC_FUND_AF, na.rm = TRUE),
+    doc_med     = sum(QT_DOC_MED,     na.rm = TRUE)
+  ),
+  by = .(NU_ANO_CENSO, TP_LOCALIZACAO)
+][order(NU_ANO_CENSO, TP_LOCALIZACAO)]
+
+dist_etapa_localizacao_ano[, localizacao := labels_localizacao[as.character(TP_LOCALIZACAO)]]
+
+message("\n=== Docentes por etapa x localização urbana/rural (Brasil, 2015-2025) ===")
+print(dist_etapa_localizacao_ano)
+
+fwrite(dist_etapa_localizacao_ano,
+       file.path(dir_out, "dist_docentes_etapa_localizacao_2015_2025.csv"), sep = ";")
 
 message("\n>>> Tabelas-resumo salvas em: ", dir_out)

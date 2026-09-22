@@ -75,6 +75,16 @@ pode levar alguns minutos na primeira execução.
   vínculo contratual, Brasil, 2025.
 - `outputs/tables/dist_docentes_vinculo_dependencia_2025.csv` — o mesmo,
   por dependência administrativa (Federal/Estadual/Municipal/Privada).
+- `outputs/tables/dist_docentes_vinculo_localizacao_2025.csv` — vínculo
+  contratual por localização urbana/rural, 2025.
+- `outputs/tables/dist_docentes_vinculo_uf_2025.csv` — vínculo
+  contratual (4 categorias) por UF, 2025.
+- `outputs/tables/dist_docentes_vinculo_regiao_2025.csv` — vínculo
+  contratual por região geográfica, 2025.
+- `outputs/tables/dist_docentes_etapa_dependencia_2015_2025.csv` —
+  docentes por etapa x dependência administrativa, série 2015-2025.
+- `outputs/tables/dist_docentes_etapa_localizacao_2015_2025.csv` —
+  docentes por etapa x localização urbana/rural, série 2015-2025.
 - `outputs/tables/dist_docentes_uf_2025.csv` — total de docentes e % de
   contratados, por UF, 2025.
 - `outputs/tables/dist_docentes_municipio_2025.csv` — o mesmo, por
@@ -84,13 +94,24 @@ pode levar alguns minutos na primeira execução.
 - `outputs/figures/02_docentes_por_vinculo_2025.png` — distribuição por
   vínculo contratual, Brasil, 2025.
 - `outputs/figures/03_vinculo_por_dependencia_2025.png` — vínculo
-  contratual por dependência administrativa, 2025.
+  contratual por dependência administrativa, 2025 (barras agrupadas por facet).
 - `outputs/figures/04a_mapa_docentes_total_uf_2025.png` /
   `04b_mapa_pct_contratados_uf_2025.png` — mapas por UF (total de
   docentes e % contratados), 2025.
 - `outputs/figures/05a_mapa_docentes_total_municipio_2025.png` /
   `05b_mapa_pct_contratados_municipio_2025.png` — os mesmos mapas, por
   município, 2025.
+- `outputs/figures/06_vinculo_por_localizacao_2025.png` — vínculo
+  contratual por localização urbana/rural, 2025 (barras agrupadas por facet).
+- `outputs/figures/07_mapa_vinculo_por_uf_2025.png` — 4 mapas (um por
+  categoria de vínculo) lado a lado, por UF, 2025.
+- `outputs/figures/08_etapa_por_dependencia_2015_2025.png` — evolução
+  de docentes por etapa, com um painel por dependência administrativa,
+  2015-2025.
+- `outputs/figures/09_etapa_por_localizacao_2015_2025.png` — o mesmo,
+  com um painel por localização urbana/rural, 2015-2025.
+- `outputs/figures/10_vinculo_por_regiao_2025.png` — vínculo contratual
+  por região geográfica, 2025 (barras agrupadas por facet).
 
 ## Dependências
 

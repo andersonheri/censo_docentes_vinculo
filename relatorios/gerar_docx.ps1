@@ -16,7 +16,7 @@ $md     = Join-Path $pasta "relatorio_descritivo_docentes_2025.md"
 $ref    = Join-Path $pasta "referencia_com_rodape.docx"
 $docx   = Join-Path $pasta "relatorio_descritivo_docentes_2025.docx"
 
-& $pandoc $md -o $docx --resource-path=$pasta --reference-doc=$ref
+& $pandoc $md -o $docx --resource-path=$pasta --reference-doc=$ref --toc --toc-depth=2 --number-sections
 if ($LASTEXITCODE -ne 0) { throw "pandoc falhou" }
 
 Write-Host ">>> DOCX salvo em: $docx ($((Get-Item $docx).Length) bytes)"

@@ -1,21 +1,32 @@
 ---
 title: 'Docentes da Educação Básica: Vínculo Contratual e Etapa de Ensino'
+subtitle: 'Relatório descritivo — Censo Escolar (INEP), com cruzamento ao IDEB'
 author:
-- Anderson Henrique — Cientista político (Ph.D.)
-- "Pesquisador de pós-doutorado, FAPESP/CEM/USP"
+- Anderson Henrique
 date: "Setembro de 2026"
 lang: "pt-BR"
-subtitle: Relatório descritivo — Censo Escolar (INEP), com cruzamento ao IDEB
+toc-title: "Sumário"
 ---
 
-::: {.identificacao}
+```{=openxml}
+<w:p><w:r><w:br w:type="page"/></w:r></w:p>
+```
 
+```{=html}
+<div style="page-break-before: always;"></div>
+```
+
+# Identificação {.unnumbered}
+
+**Docentes da Educação Básica: Vínculo Contratual e Etapa de Ensino**\
+Relatório descritivo — Censo Escolar (INEP), com cruzamento ao IDEB
+
+**Autor**: Anderson Henrique\
+Cientista político (Ph.D.); pesquisador de pós-doutorado, Centro de Estudos da Metrópole (CEM/USP), com apoio FAPESP\
 Contato: andersonheri@gmail.com
 
 **Fonte dos dados**: microdados públicos do Censo Escolar da Educação Básica e do IDEB (INEP). Os dados de origem são públicos; a síntese, as figuras e a interpretação reunidas neste relatório constituem material de entrega desta consultoria.
 
-:::
-
 ```{=openxml}
 <w:p><w:r><w:br w:type="page"/></w:r></w:p>
 ```
@@ -24,37 +35,11 @@ Contato: andersonheri@gmail.com
 <div style="page-break-before: always;"></div>
 ```
 
-## Sumário
-
-- Resumo
-- 1. Introdução e objetivo
-- 2. Dados e método
-- 3. Resultados
-  - 3.1 Panorama geral do vínculo contratual dos docentes (Brasil, 2025)
-  - 3.2 Vínculo por rede de ensino (dependência administrativa)
-  - 3.3 Vínculo por localização (urbana e rural)
-  - 3.4 Vínculo por região e Unidade da Federação
-  - 3.5 Heterogeneidade municipal do vínculo contratual
-  - 3.6 Evolução do quadro docente por etapa de ensino (2015 a 2025)
-  - 3.7 Cruzamento entre vínculo contratual e desempenho educacional (IDEB)
-- 4. Discussão e síntese das conclusões
-- Fontes e material de apoio
-
-```{=openxml}
-<w:p><w:r><w:br w:type="page"/></w:r></w:p>
-```
-
-```{=html}
-<div style="page-break-before: always;"></div>
-```
-
-## Resumo
+# Resumo {.unnumbered}
 
 Este relatório descreve o vínculo contratual dos docentes da educação básica brasileira em 2025 (concursado/efetivo, contratado temporário, CLT ou terceirizado) e sua distribuição por rede de ensino, localização urbana/rural, região, UF e município, com base nos microdados do Censo Escolar (INEP). Complementarmente, descreve a evolução da força docente por etapa de ensino entre 2015 e 2025, e testa se a proporção de docentes contratados está associada ao desempenho educacional medido pelo IDEB 2025. Os resultados mostram que 40,8% dos docentes com vínculo informado (essencialmente a rede pública) são contratados, não concursados, com forte heterogeneidade entre redes (13,5% na rede federal a 49,6% na estadual), localização (37,6% na zona urbana a 56,4% na rural) e território (10,5% no Rio de Janeiro a 67,7% no Acre, entre UFs; de 0% a mais de 96% entre municípios). A correlação entre essa proporção e o IDEB é estatisticamente significativa ao nível de município, mas de magnitude muito baixa (r entre -0,04 e -0,11), e não significativa ao nível de UF, não sustentando o vínculo contratual como fator explicativo relevante e isolado do desempenho educacional.
 
----
-
-## 1. Introdução e objetivo
+# Introdução e objetivo
 
 Este relatório descreve o perfil dos docentes da educação básica brasileira em 2025, com foco em duas dimensões: a etapa de ensino em que atuam (educação infantil, anos iniciais e finais do fundamental, ensino médio) e, principalmente, o tipo de vínculo contratual que mantêm com a rede de ensino (concursado/efetivo, contratado temporário, CLT ou terceirizado). A pergunta central é simples de enunciar e relevante para a gestão educacional: que proporção do corpo docente brasileiro trabalha sem estabilidade de vínculo (contratos temporários, CLT ou terceirização), e como essa proporção varia entre redes de ensino, regiões, UFs e municípios?
 
@@ -62,9 +47,7 @@ Como desdobramento, o relatório também examina se essa característica do vín
 
 O relatório é descritivo: apresenta distribuições, comparações entre grupos e uma análise de correlação simples. Não se trata de uma análise causal, e as limitações de cada etapa são explicitadas ao longo do texto.
 
----
-
-## 2. Dados e método
+# Dados e método
 
 **Etapa de ensino.** A variável de etapa (quantos docentes atuam na educação infantil, nos anos iniciais e finais do fundamental e no ensino médio) está disponível em todos os Censos Escolares de 2015 a 2025, permitindo observar a evolução da década.
 
@@ -83,11 +66,7 @@ Como o "não informado" é, na prática, quase inteiramente a rede privada, os d
 
 **IDEB.** O IDEB da edição 2025 já havia sido divulgado pelo INEP no momento desta análise, o que permitiu cruzar vínculo contratual (2025) e IDEB (2025) no mesmo ano, sem descompasso temporal. O IDEB não avalia a educação infantil (não há Saeb nessa etapa), então o cruzamento cobre apenas anos iniciais, anos finais e ensino médio. Além disso, na base de UF/região do IDEB, a etapa de Ensino Médio não possui uma linha agregada "rede pública" (a rede municipal não oferece ensino médio e a rede federal é residual e não aparece separada nessa aba); nesse caso específico, usou-se a rede Estadual como proxy da rede pública, o que é razoável dado que o ensino médio público é, na prática, quase inteiramente estadual.
 
----
-
-## 3. Resultados
-
-### 3.1 Panorama geral do vínculo contratual dos docentes (Brasil, 2025)
+# Panorama geral do vínculo contratual dos docentes (Brasil, 2025)
 
 O Brasil tinha, em 2025, 2.992.045 docentes na educação básica. Considerando o total geral de docentes (base a, incluindo a rede privada, que não informa vínculo): 44,9% são concursados/efetivos, 32,3% são contratados (não concursados), 1,4% estão em regime CLT, 0,5% são terceirizados, e os 20,9% restantes (essencialmente a rede privada) não têm essa informação coletada.
 
@@ -95,9 +74,9 @@ Restringindo a leitura aos 2.369.202 docentes com vínculo efetivamente informad
 
 ![Docentes por vínculo contratual, Brasil 2025](../outputs/figures/02_docentes_por_vinculo_2025.png)
 
-A leitura central deste indicador é: **entre os docentes da rede pública, quase 2 em cada 5 (40,8%) não têm vínculo concursado** — trabalham sob contrato temporário. As categorias de CLT (1,8%) e terceirizado (0,7%) são residuais em termos nacionais, mas, como se verá na seção 3.2, ganham peso em redes específicas (CLT é notavelmente mais comum na rede estadual e em São Paulo). O grupo dos contratados temporários é, disparadamente, o mais exposto a rotatividade, descontinuidade pedagógica e insegurança no emprego, e é o foco do restante deste relatório.
+A leitura central deste indicador é: **entre os docentes da rede pública, quase 2 em cada 5 (40,8%) não têm vínculo concursado** — trabalham sob contrato temporário. As categorias de CLT (1,8%) e terceirizado (0,7%) são residuais em termos nacionais, mas, como se verá na próxima seção, ganham peso em redes específicas (CLT é notavelmente mais comum na rede estadual e em São Paulo). O grupo dos contratados temporários é, disparadamente, o mais exposto a rotatividade, descontinuidade pedagógica e insegurança no emprego, e é o foco do restante deste relatório.
 
-### 3.2 Vínculo por rede de ensino (dependência administrativa)
+# Vínculo por rede de ensino (dependência administrativa)
 
 A proporção de docentes contratados varia de forma muito acentuada entre as quatro redes de ensino. Os percentuais desta seção usam a base (b): são calculados sobre o subtotal de docentes com vínculo informado dentro de cada rede.
 
@@ -105,13 +84,13 @@ A proporção de docentes contratados varia de forma muito acentuada entre as qu
 
 A rede **federal** (40.052 docentes) é a mais estável: apenas 13,5% de seus docentes são contratados, e 85,8% são concursados/efetivos, refletindo o peso dos institutos federais e universidades federais, historicamente mais estruturados em torno de carreiras concursadas. A rede **estadual** (805.009 docentes) é a mais dividida: praticamente meio a meio entre concursados (47,8%) e contratados (49,6%) — ou seja, é a rede pública com a maior dependência proporcional de contratação temporária, e também a que apresenta a maior fração de CLT (2,0%). A rede **municipal** (1.495.329 docentes), embora tenha maioria concursada (60,7%), ainda apresenta uma parcela relevante de contratados (36,9%), sobre a maior base absoluta de docentes do país — o que significa que, em número de pessoas, a rede municipal concentra o maior contingente absoluto de docentes contratados (mais de 550 mil pessoas), mesmo não sendo a rede com a maior proporção. A rede **privada** (651.655 docentes) não informa essa variável ao Censo.
 
-### 3.3 Vínculo por localização (urbana e rural)
+# Vínculo por localização (urbana e rural)
 
 ![Vínculo contratual por localização urbana/rural, Brasil 2025](../outputs/figures/06_vinculo_por_localizacao_2025.png)
 
 A diferença é grande e vai no sentido esperado: nas escolas rurais (413.464 docentes), a **maioria dos docentes (56,4%) é contratada**, contra 37,6% nas escolas urbanas (2.578.581 docentes, com 59,8% de concursados). Isso sugere que a fragilidade do vínculo contratual não está distribuída de forma uniforme pelo território: escolas rurais, tipicamente mais distantes e com menor atratividade para concursos e fixação de efetivos, dependem proporcionalmente mais de contratação temporária para preencher vagas docentes. Vale notar que a zona rural concentra uma fração pequena do total de docentes (13,8% do total nacional), então, em termos absolutos, o número de docentes contratados ainda é maior na zona urbana (735.483 contra 232.116 na zona rural) — mas proporcionalmente, é na zona rural que o vínculo precário é a norma, não a exceção.
 
-### 3.4 Vínculo por região e Unidade da Federação
+# Vínculo por região e Unidade da Federação
 
 Por região (base b, % sobre docentes com vínculo informado), o Sudeste e o Sul são as regiões com maior proporção de docentes concursados (60,6% e 58,3%, respectivamente); o Centro-Oeste, o Nordeste e o Norte concentram, proporcionalmente, mais docentes contratados, com o Centro-Oeste na liderança (47,2%), seguido de perto pelo Nordeste (46,2%) e pelo Norte (44,3%). É interessante notar que a categoria CLT é claramente concentrada no Sudeste (3,4%, mais que o dobro do Sul, segundo colocado, com 1,6%) — um reflexo, adiantando o próximo parágrafo, do peso de São Paulo nessa categoria específica.
 
@@ -129,7 +108,7 @@ Ao nível de UF (base a, % contratados sobre o total geral de docentes da UF, m�
 
 ![Mapa do total de docentes por UF, Brasil 2025](../outputs/figures/04a_mapa_docentes_total_uf_2025.png)
 
-### 3.5 Heterogeneidade municipal do vínculo contratual
+# Heterogeneidade municipal do vínculo contratual
 
 A média de uma UF esconde uma variação interna muito maior entre seus municípios. Para captar essa dimensão, restringimos a análise a municípios com pelo menos 30 docentes (para evitar que municípios muito pequenos, onde um ou dois docentes já mudam o percentual drasticamente, distorçam o retrato).
 
@@ -143,9 +122,9 @@ O boxplot, com os municípios de cada UF ordenados pela mediana, mostra que mesm
 
 A conclusão prática desta seção é que **políticas ou diagnósticos formulados apenas no nível de UF podem mascarar realidades municipais muito distintas** — inclusive municípios com pouquíssima dependência de contratação temporária e municípios quase inteiramente dependentes dela, dentro do mesmo estado.
 
-### 3.6 Evolução do quadro docente por etapa de ensino (2015 a 2025)
+# Evolução do quadro docente por etapa de ensino (2015 a 2025)
 
-Diferente do vínculo contratual, a variável de etapa de ensino existe em toda a série 2015–2025, permitindo observar tendência. *(Lembrando a nota metodológica da seção 2: como um mesmo docente pode atuar em mais de uma etapa, as participações a seguir não são mutuamente exclusivas e sua soma pode superar 100%.)*
+Diferente do vínculo contratual, a variável de etapa de ensino existe em toda a série 2015–2025, permitindo observar tendência. *(Lembrando a nota metodológica da seção "Dados e método": como um mesmo docente pode atuar em mais de uma etapa, as participações a seguir não são mutuamente exclusivas e sua soma pode superar 100%.)*
 
 ![Docentes da educação básica por etapa, Brasil 2015-2025](../outputs/figures/01_docentes_por_etapa_2015_2025.png)
 
@@ -161,9 +140,9 @@ A rede **federal** é dominada quase inteiramente pelo ensino médio, que cresce
 
 Na zona **rural**, os anos finais do fundamental são a maior categoria ao longo de toda a década (entre 170 e 185 mil docentes, com leve queda), seguidos pelos anos iniciais (115 a 130 mil); a educação infantil rural cresce de forma constante e relevante (de 58 mil para 85 mil, +46%), e o ensino médio rural, embora seja a menor categoria, também cresce de forma proporcionalmente forte (de 38 mil para 54 mil, +42%) — sinal de uma tentativa de interiorização do ensino médio no campo. Na zona **urbana**, o padrão histórico se inverte ao final da série: os anos iniciais do fundamental, que começam a década como a segunda maior categoria (cerca de 705 mil docentes, atrás dos anos finais), terminam 2025 como a maior de todas (886 mil); a educação infantil urbana tem o crescimento mais acentuado (de aproximadamente 486 mil para 654 mil docentes, +35%), com um degrau bem marcado entre 2020 e 2022, coincidindo com o período pós-pandemia.
 
-### 3.7 Cruzamento entre vínculo contratual e desempenho educacional (IDEB)
+# Cruzamento entre vínculo contratual e desempenho educacional (IDEB)
 
-Uma pergunta natural, dado o retrato acima, é se a maior dependência de docentes contratados está associada a um IDEB mais baixo. Essa seção testa essa hipótese, restrita à rede pública (federal, estadual e municipal, exceto no ensino médio a nível de UF, onde se usa a rede estadual como proxy — ver seção 2), no mesmo ano de referência (2025).
+Uma pergunta natural, dado o retrato acima, é se a maior dependência de docentes contratados está associada a um IDEB mais baixo. Essa seção testa essa hipótese, restrita à rede pública (federal, estadual e municipal, exceto no ensino médio a nível de UF, onde se usa a rede estadual como proxy — ver seção "Dados e método"), no mesmo ano de referência (2025).
 
 | Nível | Etapa | N | Pearson (r) | Significância (Pearson) | Spearman (ρ) | Significância (Spearman) |
 |---|---|---:|---:|---|---:|---|
@@ -184,9 +163,7 @@ O sinal da correlação, quando estatisticamente detectável (nível município)
 
 Os gráficos de dispersão (município e UF, um painel por etapa) tornam visível o que os números de correlação já indicam: as nuvens de pontos são dispersas e sem padrão visual claro, com uma linha de tendência praticamente plana (levemente descendente). Não há, visualmente, nenhum agrupamento que sugira um efeito de limiar (por exemplo, "acima de X% de contratados o IDEB despenca") nem uma relação linear forte em nenhuma direção. No gráfico por UF, é possível ver, por exemplo, que Roraima (RR) e Rio de Janeiro (RJ) têm IDEB relativamente baixo com percentuais de contratados muito diferentes entre si (RR tem um dos maiores percentuais de concursados do país, RJ tem o maior percentual de concursados de todos), o que já ilustra, por si só, que o vínculo contratual não é um previsor consistente do IDEB quando se olha caso a caso.
 
----
-
-## 4. Discussão e síntese das conclusões
+# Discussão e síntese das conclusões
 
 1. **Quase 2 em cada 5 docentes da rede pública (40,8%) têm vínculo contratado, não concursado.** Esse é o número-chave do retrato de 2025: entre os docentes com vínculo informado (essencialmente a rede pública), a maioria ainda é concursada (56,7%), mas a fração de contratados temporários é grande demais para ser tratada como marginal.
 
@@ -208,8 +185,6 @@ Os gráficos de dispersão (município e UF, um painel por etapa) tornam visíve
 
 Em conjunto, esses resultados sugerem que o problema da contratação temporária no magistério público brasileiro é real, expressivo e desigualmente distribuído (por rede, por localização, por região e, principalmente, por município), mas que seu impacto direto e isolado sobre o indicador de desempenho educacional mais usado no país (o IDEB) é, com os dados de 2025, estatisticamente fraco. Isso não significa que o vínculo contratual seja irrelevante para a qualidade da educação — apenas que essa relação, se existir de forma mais substantiva, provavelmente opera de forma indireta ou em conjunto com outros fatores, e não como uma relação simples e direta capturada por uma correlação bivariada.
 
----
-
-## Fontes e material de apoio
+# Fontes e material de apoio
 
 Microdados do Censo Escolar da Educação Básica, INEP, edições 2015 a 2025. Divulgação oficial do IDEB, edição 2025, INEP. Todas as figuras referenciadas neste relatório estão em `outputs/figures/` e as tabelas de apoio completas (incluindo as bases usadas para construir cada figura) em `outputs/tables/`, geradas pelos scripts em `R/` (ver `README.md` do projeto para o pipeline completo, executável via `run_all.R`).

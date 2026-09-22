@@ -45,7 +45,8 @@ censo_docentes_vinculo/
 │   ├── 02_distribuicoes.R         # gera as tabelas-resumo (Brasil)
 │   ├── 03_visualizacoes.R         # gráficos ggplot2 e mapas (UF e município)
 │   ├── 04_analises_avancadas.R    # ranking, boxplot e painel-resumo executivo
-│   └── 05_importar_ideb.R         # baixa e importa o IDEB (município e UF), todas as edições
+│   ├── 05_importar_ideb.R         # baixa e importa o IDEB (município e UF), todas as edições
+│   └── 06_cruzamento_ideb.R       # cruza % de docentes contratados com o IDEB, 2025
 ├── data/
 │   ├── raw/                       # microdados brutos (NÃO versionado — ver README nesta pasta)
 │   └── processed/                 # painel consolidado (NÃO versionado, gerado localmente)
@@ -66,6 +67,8 @@ censo_docentes_vinculo/
    source("R/02_distribuicoes.R")
    source("R/03_visualizacoes.R")
    source("R/04_analises_avancadas.R")
+   source("R/05_importar_ideb.R")
+   source("R/06_cruzamento_ideb.R")
    ```
 
 Os mapas (`03_visualizacoes.R`) usam o pacote `geobr`, que baixa a malha
@@ -78,8 +81,7 @@ pode levar alguns minutos na primeira execução.
 
 Esse script baixa sozinho os arquivos oficiais de divulgação do IDEB
 direto do INEP (não precisa baixar manualmente) e salva em
-`data/raw_ideb/` (também não versionado). **Ainda não faz parte do
-`run_all.R`** — rode-o à parte, na raiz do projeto:
+`data/raw_ideb/` (também não versionado):
 
 ```r
 source("R/05_importar_ideb.R")
@@ -106,6 +108,28 @@ O script imprime no console o que detectou em cada arquivo (linha de
 cabeçalho, colunas de identificação, edições encontradas, valores
 únicos de "Rede") — se o INEP mudar o arquivo no futuro e algo não
 bater, a mensagem de erro aponta onde olhar no arquivo original.
+
+O valor da coluna de Rede também vem, às vezes, com marcadores de nota
+do INEP grudados (ex.: `"Pública (4)"`, `"Total (3)(4)"`) — o script
+remove esses marcadores para que `REDE == "Pública"` capture todas as
+linhas da categoria, não só as sem nota.
+
+### Cruzamento com o IDEB (06_cruzamento_ideb.R)
+
+```r
+source("R/06_cruzamento_ideb.R")
+```
+
+Cruza o IDEB 2025 (rede pública — Federal + Estadual + Municipal, para
+bater com o escopo do IDEB nesse nível) com o % de docentes com
+vínculo "contratado", por Anos Iniciais, Anos Finais e Ensino Médio
+(IDEB não avalia educação infantil). Como o IDEB 2025 já foi divulgado
+(confirmado em `05_importar_ideb.R`), os dois lados do cruzamento são
+do mesmo ano — sem o descompasso que motivou a mudança de plano.
+
+Gera dispersões (% contratados × IDEB) por etapa, em nível município e
+UF, com linha de tendência e correlação (Pearson/Spearman) anotada em
+cada painel.
 
 ## Saídas
 
@@ -170,7 +194,18 @@ bater, a mensagem de erro aponta onde olhar no arquivo original.
 - `data/processed/ideb_municipios_long.rds` / `.csv` — IDEB por
   município, rede e edição (2005-2025), formato longo (gerado
   localmente, não versionado).
-- `data/processed/ideb_uf_long.rds` / `.csv` — o mesmo, por UF/região.
+- `data/processed/ideb_uf_long.rds` / `.csv` — o mesmo, por UF/região
+  (`SG_UF` preenchido para as 27 UFs, `NA` + `NIVEL = "Região"` nas 5
+  linhas de agregado regional).
+- `outputs/tables/cruzamento_docentes_ideb_municipio_2025.csv` — base
+  município x etapa: % de contratados e IDEB (rede pública), 2025.
+- `outputs/tables/cruzamento_docentes_ideb_uf_2025.csv` — o mesmo, por UF.
+- `outputs/tables/correlacao_docentes_ideb_2025.csv` — correlação
+  (Pearson e Spearman) entre % de contratados e IDEB, por etapa e nível.
+- `outputs/figures/15_dispersao_contratados_ideb_municipio_2025.png` —
+  dispersão % contratados × IDEB por etapa, municípios, 2025.
+- `outputs/figures/16_dispersao_contratados_ideb_uf_2025.png` — o
+  mesmo, por UF (pontos rotulados com a sigla).
 
 ## Dependências
 

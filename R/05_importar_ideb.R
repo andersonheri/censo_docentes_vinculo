@@ -322,8 +322,23 @@ ler_ideb_xlsx <- function(caminho_xlsx, coluna_ancora, aba = 1) {
   }
 
   if (!is.na(col_rede)) {
-    message("    Valores únicos de '", col_rede, "': ",
-            paste(sort(unique(dados[[col_rede]])), collapse = " | "))
+    # Normaliza marcadores de nota do INEP embutidos no VALOR da rede
+    # (ex.: "Pública (4)", "Total (3)(4)") para a categoria "limpa"
+    # (ex.: "Pública", "Total"). Sem isso, um filtro por REDE == "Pública"
+    # em um script de análise perderia silenciosamente as linhas
+    # marcadas com nota — confirmado que isso ocorre no arquivo de
+    # UF/região (não ocorre no de município, que não tem essas marcas).
+    valores_antes <- sort(unique(dados[[col_rede]]))
+    dados[[col_rede]] <- trimws(sub("(\\s*\\(\\d+\\))+$", "", dados[[col_rede]]))
+    valores_depois <- sort(unique(dados[[col_rede]]))
+    if (!identical(valores_antes, valores_depois)) {
+      message("    [ok] Marcadores de nota removidos de '", col_rede, "': ",
+              paste(valores_antes, collapse = " | "), " -> ",
+              paste(valores_depois, collapse = " | "))
+    } else {
+      message("    Valores únicos de '", col_rede, "': ",
+              paste(valores_depois, collapse = " | "))
+    }
   }
 
   # 5) Formato longo: 1 linha por unidade x rede x edição.

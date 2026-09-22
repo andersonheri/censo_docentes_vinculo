@@ -1,0 +1,16 @@
+# Dados brutos (grandes, de distribuição pública — não versionar)
+data/raw/*
+!data/raw/README.md
+
+# Dados processados (gerados localmente pelo pipeline)
+data/processed/*
+
+# R
+.Rhistory
+.RData
+.Rproj.user/
+.Ruserdata
+
+# SO
+.DS_Store
+Thumbs.db

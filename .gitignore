@@ -2,6 +2,9 @@
 data/raw/*
 !data/raw/README.md
 
+# IDEB: baixado automaticamente por R/05_importar_ideb.R
+data/raw_ideb/
+
 # Dados processados (gerados localmente pelo pipeline)
 data/processed/*
 

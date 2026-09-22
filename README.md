@@ -44,7 +44,8 @@ censo_docentes_vinculo/
 │   ├── 01_importar_docentes.R     # lê 2015-2025 e monta o painel escola x ano
 │   ├── 02_distribuicoes.R         # gera as tabelas-resumo (Brasil)
 │   ├── 03_visualizacoes.R         # gráficos ggplot2 e mapas (UF e município)
-│   └── 04_analises_avancadas.R    # ranking, boxplot e painel-resumo executivo
+│   ├── 04_analises_avancadas.R    # ranking, boxplot e painel-resumo executivo
+│   └── 05_importar_ideb.R         # baixa e importa o IDEB (município e UF), todas as edições
 ├── data/
 │   ├── raw/                       # microdados brutos (NÃO versionado — ver README nesta pasta)
 │   └── processed/                 # painel consolidado (NÃO versionado, gerado localmente)
@@ -72,6 +73,29 @@ de estados e municípios do IBGE na primeira execução (fica em cache
 local depois) — é necessário estar conectado à internet na primeira vez.
 O mapa por município baixa um shapefile pesado (~5.570 municípios) e
 pode levar alguns minutos na primeira execução.
+
+### IDEB (05_importar_ideb.R)
+
+Esse script baixa sozinho os arquivos oficiais de divulgação do IDEB
+direto do INEP (não precisa baixar manualmente) e salva em
+`data/raw_ideb/` (também não versionado). **Ainda não faz parte do
+`run_all.R`** — rode-o à parte, na raiz do projeto:
+
+```r
+source("R/05_importar_ideb.R")
+```
+
+A planilha do IDEB tem um cabeçalho bem mais complexo que os microdados
+do Censo (múltiplas linhas mescladas, estrutura que muda entre edições
+antigas e recentes), e essa estrutura foi inspecionada manualmente a
+partir do XML bruto do `.xlsx` — sem conseguir testar a leitura em R.
+Por isso o script localiza a linha de cabeçalho e as colunas por
+**nome/padrão** (ex.: células `CO_MUNICIPIO`, `VL_OBSERVADO_<ano>`), não
+por posição fixa, e imprime no console o que detectou em cada arquivo
+(linha de cabeçalho, colunas de identificação, edições encontradas,
+valores únicos de "Rede"). **Rode esse script primeiro e confira essas
+mensagens** antes de qualquer cruzamento com os docentes — se algo não
+bater, a mensagem de erro aponta onde olhar no arquivo original.
 
 ## Saídas
 
@@ -133,6 +157,10 @@ pode levar alguns minutos na primeira execução.
 - `outputs/figures/14_painel_resumo_executivo_2025.png` — painel único
   (via `patchwork`) com os números-chave, o mapa por UF e o top-5 de
   UFs — pensado para abrir uma apresentação/relatório.
+- `data/processed/ideb_municipios_long.rds` / `.csv` — IDEB por
+  município, rede e edição (2005-2025), formato longo (gerado
+  localmente, não versionado).
+- `data/processed/ideb_uf_long.rds` / `.csv` — o mesmo, por UF/região.
 
 ## Dependências
 
@@ -141,6 +169,7 @@ pode levar alguns minutos na primeira execução.
 - [`ggplot2`](https://cran.r-project.org/package=ggplot2), [`scales`](https://cran.r-project.org/package=scales)
 - [`geobr`](https://cran.r-project.org/package=geobr), [`sf`](https://cran.r-project.org/package=sf) — malhas geográficas para os mapas
 - [`patchwork`](https://cran.r-project.org/package=patchwork) — monta o painel-resumo executivo a partir de vários gráficos
+- [`readxl`](https://cran.r-project.org/package=readxl) — leitura das planilhas `.xlsx` do IDEB
 
 ## Fonte dos dados
 

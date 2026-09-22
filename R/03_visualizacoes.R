@@ -178,18 +178,26 @@ dist_vinculo_dep_long[, `:=`(
 dist_vinculo_dep_long[, pct := round(100 * n_docentes / sum(n_docentes), 1),
                        by = dependencia]
 
+# Barras agrupadas (não empilhadas): cada dependência administrativa vira
+# um painel (facet) na mesma imagem, e dentro de cada painel as 4
+# categorias de vínculo aparecem lado a lado (position = "dodge").
 g3 <- ggplot(dist_vinculo_dep_long,
-             aes(x = dependencia, y = pct, fill = vinculo)) +
-  geom_col(position = "stack") +
+             aes(x = vinculo, y = pct, fill = vinculo)) +
+  geom_col(position = "dodge") +
+  facet_wrap(~ dependencia, nrow = 1) +
   scale_y_continuous(labels = label_percent(scale = 1)) +
   labs(
     title    = "Vínculo contratual por dependência administrativa — Brasil, 2025",
     subtitle = "% de docentes dentro de cada dependência",
-    x        = "Dependência administrativa",
+    x        = NULL,
     y        = "% de docentes",
     fill     = "Vínculo"
   ) +
-  theme(legend.position = "bottom")
+  theme(
+    legend.position = "bottom",
+    axis.text.x     = element_blank(),
+    axis.ticks.x    = element_blank()
+  )
 
 ggsave(file.path(dir_fig, "03_vinculo_por_dependencia_2025.png"),
        g3, width = 10, height = 6.5, dpi = 300)

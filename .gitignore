@@ -18,7 +18,12 @@ data/processed/*
 .DS_Store
 Thumbs.db
 
-# Preview HTML gerado automaticamente pelo RStudio ao abrir .md
-relatorios/*.html
+# Artefatos intermediários de renderização do quarto/LaTeX (relatorios/)
+# -- os deliverables finais (.html, .pdf) e o .qmd/_identificacao.tex
+# fonte SÃO versionados; só o lixo de build fica de fora.
+relatorios/*.aux
 relatorios/*.log
-relatorios/*.tex
+relatorios/*.toc
+relatorios/*.knit.md
+relatorios/relatorio_final.tex
+relatorios/relatorio_final_files/

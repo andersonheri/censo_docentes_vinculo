@@ -1,0 +1,345 @@
+---
+title: "Docentes da Educação Básica: Vínculo Contratual e Etapa de Ensino"
+subtitle: "Relatório Descritivo · Censo Escolar (INEP), com Cruzamento ao IDEB"
+author:
+  - name: "Anderson Henrique"
+    affiliations:
+      - name: "Cientista político (Ph.D.); pesquisador de pós-doutorado, Centro de Estudos da Metrópole (CEM/USP), com apoio FAPESP"
+date: today
+lang: pt-BR
+toc-title: "Sumário"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+    embed-resources: true
+    theme: cosmo
+    fig-width: 8
+    fig-height: 4.5
+  pdf:
+    documentclass: scrartcl
+    number-sections: true
+    toc: true
+    include-before-body: _identificacao.tex
+    fig-width: 6.5
+    fig-height: 4
+execute:
+  echo: false
+  warning: false
+  message: false
+---
+
+```{r setup, include=FALSE}
+try(Sys.setlocale("LC_ALL", "Portuguese_Brazil.utf8"), silent = TRUE)
+options(encoding = "UTF-8")
+
+# here::here() resolve caminhos a partir da raiz do projeto (onde esta
+# censo_docentes_vinculo.Rproj), independente do working dir que o
+# quarto usa por padrao (o diretorio do .qmd, relatorios/) -- mesma
+# convencao do relatorio de referencia da consultoria Cristiana.
+source(here::here("R", "00_setup.R"))
+
+# 00_setup.R cria data/raw, data/processed e outputs/tables com
+# dir.create() se "nao existirem" -- mas ele usa caminhos relativos
+# (file.path("data","raw") etc.), que resolvem contra o working dir do
+# quarto (relatorios/), nao contra a raiz do projeto. Como as pastas
+# reais da raiz ja existem (nao passam por aqui), qualquer coisa que
+# aparecer em relatorios/data ou relatorios/outputs so pode ser esse
+# efeito colateral acidental; remove na hora.
+unlink(c("data", "outputs"), recursive = TRUE, force = TRUE)
+
+DIR_FIG <- here::here("outputs", "figures")
+DIR_TAB <- here::here("outputs", "tables")
+
+fig <- function(nome) knitr::include_graphics(file.path(DIR_FIG, nome))
+tab <- function(nome) data.table::fread(file.path(DIR_TAB, nome), encoding = "UTF-8")
+
+# dist_docentes_municipio_nomeado_2025.csv especificamente saiu em Latin-1
+# do pipeline original (NO_MUNICIPIO vem, sem re-encoding, do CSV bruto do
+# Censo/INEP, que e Latin-1) -- confirmado com `iconv -f UTF-8` recusando
+# o arquivo. Le com a codificacao certa para nao corromper nomes
+# acentuados (ex.: "Bertópolis") ao interpolar no texto.
+tab_latin1 <- function(nome) data.table::fread(file.path(DIR_TAB, nome), encoding = "Latin-1")
+
+fmt_n   <- function(x) format(round(x), big.mark = ".", decimal.mark = ",")
+fmt_pct <- function(x, digits = 1) format(round(x, digits), decimal.mark = ",", nsmall = digits)
+
+# % dentro da base (b): sobre o subtotal de docentes com vínculo informado
+# (soma das 4 categorias), não sobre doc_bas -- ver seção "Dados e método".
+pct_base_b <- function(dt, filtro = NULL) {
+  linha <- if (is.null(filtro)) dt else dt[eval(filtro)]
+  total <- linha$doc_vinculo_concur + linha$doc_vinculo_contrat +
+    linha$doc_vinculo_terceir + linha$doc_vinculo_clt
+  data.table::data.table(
+    concur   = round(100 * linha$doc_vinculo_concur  / total, 1),
+    contrat  = round(100 * linha$doc_vinculo_contrat / total, 1),
+    terceir  = round(100 * linha$doc_vinculo_terceir / total, 1),
+    clt      = round(100 * linha$doc_vinculo_clt     / total, 1)
+  )
+}
+
+vinculo_nac <- tab("dist_docentes_vinculo_2025.csv")
+vinculo_dep <- tab("dist_docentes_vinculo_dependencia_2025.csv")
+vinculo_loc <- tab("dist_docentes_vinculo_localizacao_2025.csv")
+vinculo_reg <- tab("dist_docentes_vinculo_regiao_2025.csv")
+dist_uf     <- tab("dist_docentes_uf_2025.csv")
+mun_nomeado <- tab_latin1("dist_docentes_municipio_nomeado_2025.csv")
+etapa_serie <- tab("dist_docentes_etapa_2015_2025.csv")
+correlacao  <- tab("correlacao_docentes_ideb_2025.csv")
+
+n_total_2025   <- vinculo_nac$doc_bas
+n_informado    <- vinculo_nac$doc_vinculo_concur + vinculo_nac$doc_vinculo_contrat +
+  vinculo_nac$doc_vinculo_terceir + vinculo_nac$doc_vinculo_clt
+pct_nac_b      <- pct_base_b(vinculo_nac)
+
+n_privada      <- vinculo_dep[TP_DEPENDENCIA == 4]$doc_bas
+pct_privada    <- round(100 * n_privada / n_total_2025, 1)
+
+pct_fed  <- pct_base_b(vinculo_dep, quote(TP_DEPENDENCIA == 1))
+pct_est  <- pct_base_b(vinculo_dep, quote(TP_DEPENDENCIA == 2))
+pct_mun  <- pct_base_b(vinculo_dep, quote(TP_DEPENDENCIA == 3))
+n_fed <- vinculo_dep[TP_DEPENDENCIA == 1]$doc_bas
+n_est <- vinculo_dep[TP_DEPENDENCIA == 2]$doc_bas
+n_mun <- vinculo_dep[TP_DEPENDENCIA == 3]$doc_bas
+
+pct_urb <- pct_base_b(vinculo_loc, quote(localizacao == "Urbana"))
+pct_rur <- pct_base_b(vinculo_loc, quote(localizacao == "Rural"))
+n_urb <- vinculo_loc[localizacao == "Urbana"]$doc_bas
+n_rur <- vinculo_loc[localizacao == "Rural"]$doc_bas
+
+dist_uf_ord   <- dist_uf[order(-pct_contratados)]
+uf_media      <- round(100 * sum(dist_uf$doc_vinculo_contrat) / sum(dist_uf$doc_bas), 1)
+uf_max        <- dist_uf_ord[1]
+uf_min        <- dist_uf_ord[.N]
+sp            <- dist_uf[SG_UF == "SP"]
+mg            <- dist_uf[SG_UF == "MG"]
+ac            <- dist_uf[SG_UF == "AC"]
+
+MIN_DOCENTES  <- 30
+mun_elegiveis <- mun_nomeado[doc_bas >= MIN_DOCENTES]
+mun_top1      <- mun_elegiveis[order(-pct_contratados)][1]
+mun_bottom1   <- mun_elegiveis[order(pct_contratados)][1]
+
+etapa_2015 <- etapa_serie[NU_ANO_CENSO == 2015]
+etapa_2025 <- etapa_serie[NU_ANO_CENSO == 2025]
+
+sig_label <- function(p) {
+  dplyr_case <- if (p < 0.01) "p < 0,01" else if (p < 0.05) "p < 0,05" else "p > 0,05"
+  dplyr_case
+}
+correlacao[, sig_pearson := vapply(pearson_p, sig_label, character(1))]
+correlacao[, sig_spearman := vapply(spearman_p, sig_label, character(1))]
+```
+
+::: {.content-visible when-format="html"}
+
+# Identificação {.unnumbered}
+
+**Docentes da Educação Básica: Vínculo Contratual e Etapa de Ensino**\
+Relatório descritivo — Censo Escolar (INEP), com cruzamento ao IDEB
+
+**Autor**: Anderson Henrique\
+Cientista político (Ph.D.); pesquisador de pós-doutorado, Centro de Estudos da Metrópole (CEM/USP), com apoio FAPESP\
+Contato: andersonheri@gmail.com
+
+**Fonte dos dados**: microdados públicos do Censo Escolar da Educação Básica e do IDEB (INEP). Os dados de origem são públicos; a síntese, as figuras e a interpretação reunidas neste relatório constituem material de entrega desta consultoria.
+
+:::
+
+```{=latex}
+\clearpage
+```
+
+{{< pagebreak >}}
+
+# Introdução e objetivo
+
+Este relatório descreve o perfil dos docentes da educação básica brasileira em 2025, com foco em duas dimensões: a etapa de ensino em que atuam (educação infantil, anos iniciais e finais do fundamental, ensino médio) e, principalmente, o tipo de vínculo contratual que mantêm com a rede de ensino (concursado/efetivo, contratado temporário, CLT ou terceirizado). A pergunta central é simples de enunciar e relevante para a gestão educacional: que proporção do corpo docente brasileiro trabalha sem estabilidade de vínculo (contratos temporários, CLT ou terceirização), e como essa proporção varia entre redes de ensino, regiões, UFs e municípios?
+
+Como desdobramento, o relatório também examina se essa característica do vínculo contratual está associada ao desempenho educacional medido pelo IDEB, testando a hipótese de que uma maior proporção de docentes contratados (em vez de concursados) esteja relacionada a resultados piores.
+
+O relatório é descritivo: apresenta distribuições, comparações entre grupos e uma análise de correlação simples, calculadas a partir dos dados tratados pelo pipeline em `R/` (ver `README.md` do projeto). Não se trata de uma análise causal, e as limitações de cada fonte são explicitadas na próxima seção.
+
+# Descrição dos dados
+
+## Fonte e cobertura
+
+A base é construída a partir dos microdados abertos do Censo Escolar da Educação Básica (INEP), lidos localmente pelo pipeline em `R/01_importar_docentes.R`, e da divulgação oficial do IDEB (INEP), lida em `R/05_importar_ideb.R`. Não há dependência de serviço externo em tempo de execução: os microdados do Censo são baixados manualmente e ficam em `data/raw/` (ver `data/raw/README.md`), e os arquivos do IDEB são baixados automaticamente e cacheados em `data/raw_ideb/`.
+
+A série de etapa de ensino cobre **`r min(etapa_serie$NU_ANO_CENSO)`–`r max(etapa_serie$NU_ANO_CENSO)`**, com **`r fmt_n(n_total_2025)` docentes** na educação básica em `r max(etapa_serie$NU_ANO_CENSO)`.
+
+## Vínculo contratual: variável e cobertura
+
+A variável de vínculo contratual do docente (`QT_DOC_BAS_VINCULO_CONCUR`, `_CONTRA`, `_TERCEIR`, `_CLT`) só passou a existir no Censo Escolar a partir da edição de 2025 — confirmado exaustivamente nos microdados de 2015 a 2024, onde a variável simplesmente não existe. Por esse motivo, toda a análise de vínculo contratual deste relatório é um retrato do ano de 2025, sem série histórica.
+
+Essa variável só é informada para a rede pública. A rede privada não reporta essa informação ao Censo — as quatro categorias de vínculo aparecem como zero para 100% dos seus docentes, o que é coerente com a própria natureza da variável (vínculo estatutário/CLT/temporário é um conceito de gestão de pessoal do setor público). A rede privada representa **`r fmt_n(n_privada)` docentes** da educação básica em 2025 (**`r fmt_pct(pct_privada)`%** do total), e todos eles ficam fora do indicador de vínculo.
+
+## Duas bases de cálculo para as percentagens de vínculo
+
+Ao longo do relatório, os percentuais de vínculo (concursado, contratado, CLT, terceirizado) aparecem calculados sobre duas bases diferentes, dependendo da comparação:
+
+- **(a) sobre o total de docentes do grupo** (denominador = total de docentes da educação básica daquele grupo, incluindo a rede privada quando o grupo mistura redes, como uma UF ou um município). Essa é a base usada nos rankings por município e por UF.
+- **(b) sobre o subtotal de docentes com vínculo efetivamente informado** (soma das quatro categorias de vínculo, que na prática coincide com a rede pública). Essa é a base usada nas comparações por rede de ensino, localização urbana/rural, região e no total nacional.
+
+Como o "não informado" é, na prática, quase inteiramente a rede privada, os dois cálculos convergem dentro de um grupo 100% público e diferem quando o grupo mistura rede pública e privada. Nacionalmente, **`r fmt_pct(vinculo_nac$pct_contrat)`%** do total geral de docentes são contratados (base a), mas **`r fmt_pct(pct_nac_b$contrat)`%** dos docentes com vínculo informado são contratados (base b). Cada seção deste relatório indica qual base está sendo usada.
+
+## Limitações de coleta
+
+- Docentes podem atuar em mais de uma etapa de ensino: as variáveis `QT_DOC_INF`, `QT_DOC_FUND_AI`, `QT_DOC_FUND_AF`, `QT_DOC_MED` não são mutuamente exclusivas, então a soma das participações de etapa dentro de um grupo pode superar 100%.
+- O IDEB não avalia a educação infantil (não há Saeb nessa etapa); o cruzamento com o IDEB cobre apenas anos iniciais, anos finais e ensino médio.
+- Na base de UF/região do IDEB, a etapa de Ensino Médio não possui uma linha agregada "rede pública" (a rede municipal não oferece ensino médio e a rede federal é residual e não aparece separada nessa aba); usou-se a rede Estadual como proxy da rede pública nesse caso específico, o que é razoável dado que o ensino médio público é, na prática, quase inteiramente estadual.
+
+Para mais detalhes sobre o pipeline de importação e tratamento, ver os scripts em `R/` e o `README.md` do projeto.
+
+# Panorama geral do vínculo contratual dos docentes
+
+O Brasil tinha, em 2025, **`r fmt_n(n_total_2025)` docentes** na educação básica. Considerando o total geral de docentes (base a, incluindo a rede privada, que não informa vínculo): **`r fmt_pct(vinculo_nac$pct_concur)`%** são concursados/efetivos, **`r fmt_pct(vinculo_nac$pct_contrat)`%** são contratados (não concursados), **`r fmt_pct(vinculo_nac$pct_clt)`%** estão em regime CLT, **`r fmt_pct(vinculo_nac$pct_terceir)`%** são terceirizados, e os demais (essencialmente a rede privada) não têm essa informação coletada.
+
+Restringindo a leitura aos **`r fmt_n(n_informado)` docentes** com vínculo efetivamente informado (base b, essencialmente a rede pública), o quadro se torna o da figura abaixo.
+
+```{r vinculo-nacional}
+#| out-width: "100%"
+fig("02_docentes_por_vinculo_2025.png")
+```
+
+A leitura central deste indicador é: entre os docentes da rede pública, quase **2 em cada 5** (**`r fmt_pct(pct_nac_b$contrat)`%**) não têm vínculo concursado — trabalham sob contrato temporário. As categorias de CLT (`r fmt_pct(pct_nac_b$clt)`%) e terceirizado (`r fmt_pct(pct_nac_b$terceir)`%) são residuais em termos nacionais, mas, como se verá na próxima seção, ganham peso em redes específicas. O grupo dos contratados temporários é, disparadamente, o mais exposto a rotatividade, descontinuidade pedagógica e insegurança no emprego, e é o foco do restante deste relatório.
+
+# Vínculo por rede de ensino
+
+A proporção de docentes contratados varia de forma muito acentuada entre as quatro redes de ensino. Os percentuais desta seção usam a base (b): são calculados sobre o subtotal de docentes com vínculo informado dentro de cada rede.
+
+```{r vinculo-dependencia}
+#| out-width: "100%"
+fig("03_vinculo_por_dependencia_2025.png")
+```
+
+A rede **federal** (`r fmt_n(n_fed)` docentes) é a mais estável: apenas `r fmt_pct(pct_fed$contrat)`% de seus docentes são contratados, e `r fmt_pct(pct_fed$concur)`% são concursados/efetivos, refletindo o peso dos institutos federais e universidades federais, historicamente mais estruturados em torno de carreiras concursadas. A rede **estadual** (`r fmt_n(n_est)` docentes) é a mais dividida: `r fmt_pct(pct_est$concur)`% concursados contra `r fmt_pct(pct_est$contrat)`% contratados — ou seja, é a rede pública com a maior dependência proporcional de contratação temporária, e também a que apresenta a maior fração de CLT (`r fmt_pct(pct_est$clt)`%). A rede **municipal** (`r fmt_n(n_mun)` docentes), embora tenha maioria concursada (`r fmt_pct(pct_mun$concur)`%), ainda apresenta uma parcela relevante de contratados (`r fmt_pct(pct_mun$contrat)`%), sobre a maior base absoluta de docentes do país — o que significa que, em número de pessoas, a rede municipal concentra o maior contingente absoluto de docentes contratados do país, mesmo não sendo a rede com a maior proporção. A rede **privada** não informa essa variável ao Censo.
+
+# Vínculo por localização
+
+```{r vinculo-localizacao}
+#| out-width: "100%"
+fig("06_vinculo_por_localizacao_2025.png")
+```
+
+A diferença é grande e vai no sentido esperado: nas escolas rurais (`r fmt_n(n_rur)` docentes), a maioria dos docentes (`r fmt_pct(pct_rur$contrat)`%) é contratada, contra `r fmt_pct(pct_urb$contrat)`% nas escolas urbanas (`r fmt_n(n_urb)` docentes, com `r fmt_pct(pct_urb$concur)`% de concursados). Isso sugere que a fragilidade do vínculo contratual não está distribuída de forma uniforme pelo território: escolas rurais, tipicamente mais distantes e com menor atratividade para concursos e fixação de efetivos, dependem proporcionalmente mais de contratação temporária para preencher vagas docentes. Vale notar que a zona rural concentra uma fração pequena do total de docentes (`r fmt_pct(100 * n_rur / n_total_2025)`% do total nacional), então, em termos absolutos, o número de docentes contratados ainda é maior na zona urbana — mas proporcionalmente, é na zona rural que o vínculo precário é a norma, não a exceção.
+
+# Vínculo por região e Unidade da Federação
+
+```{r vinculo-regiao}
+#| out-width: "100%"
+fig("10_vinculo_por_regiao_2025.png")
+```
+
+O mapa abaixo decompõe essa mesma informação por UF e por categoria de vínculo, em quatro painéis (CLT, Concursado/efetivo, Contratado e Terceirizado). Ele confirma visualmente o que os números já indicam: Roraima e Amazonas se destacam com a maior proporção de concursados do país, o Acre se destaca isoladamente no painel "Contratado", e os painéis de CLT e Terceirizado são visualmente quase uniformes e escuros (valores baixos) em todo o território, com pequenas exceções localizadas (São Paulo em CLT, Rio Grande do Norte em Terceirizado).
+
+```{r vinculo-mapa-uf}
+#| out-width: "100%"
+fig("07_mapa_vinculo_por_uf_2025.png")
+```
+
+Ao nível de UF (base a, % contratados sobre o total geral de docentes da UF, média nacional de `r fmt_pct(uf_media)`%), a variação é a maior de toda a análise territorial: o ranking vai de `r fmt_pct(uf_min$pct_contratados)`% em `r uf_min$SG_UF` a `r fmt_pct(uf_max$pct_contratados)`% no `r uf_max$SG_UF` — uma diferença de mais de `r round(uf_max$pct_contratados / uf_min$pct_contratados)` vezes entre os extremos.
+
+```{r vinculo-ranking-uf}
+#| out-width: "100%"
+fig("12_ranking_uf_contratados_2025.png")
+```
+
+**Percentual alto não é o mesmo que número alto de pessoas.** O mapa abaixo mostra o total absoluto de docentes por UF: São Paulo concentra, isoladamente, o maior contingente docente do país (`r fmt_n(sp$doc_bas)` docentes), o que é relevante para interpretar o ranking anterior: São Paulo tem um percentual de contratados relativamente baixo (`r fmt_pct(sp$pct_contratados)`%), mas, por ser um estado enorme, esse percentual já representa `r fmt_n(sp$doc_vinculo_contrat)` docentes contratados em números absolutos — o maior contingente absoluto do país, maior até que o de Minas Gerais (`r fmt_n(mg$doc_vinculo_contrat)`) e muito maior que o do Acre (`r fmt_n(ac$doc_vinculo_contrat)` docentes contratados, apesar de ter o maior percentual). Ou seja: se a preocupação de política pública for "onde estão as maiores taxas de precarização", o Acre lidera; se for "onde estão as maiores populações afetadas em números absolutos", São Paulo e Minas Gerais lideram — são leituras diferentes e complementares do mesmo fenômeno.
+
+```{r vinculo-mapa-total}
+#| out-width: "100%"
+fig("04a_mapa_docentes_total_uf_2025.png")
+```
+
+# Heterogeneidade municipal do vínculo contratual
+
+A média de uma UF esconde uma variação interna muito maior entre seus municípios. Para captar essa dimensão, restringimos a análise a municípios com pelo menos `r MIN_DOCENTES` docentes (para evitar que municípios muito pequenos, onde um ou dois docentes já mudam o percentual drasticamente, distorçam o retrato).
+
+```{r ranking-municipios}
+#| out-width: "100%"
+fig("11_ranking_municipios_contratados_2025.png")
+```
+
+A amplitude é total: de municípios onde praticamente nenhum docente é contratado até municípios como **`r mun_top1$NO_MUNICIPIO`/`r mun_top1$SG_UF`** (**`r fmt_pct(mun_top1$pct_contratados)`%**), onde quase todo o corpo docente é contratado — no outro extremo, **`r mun_bottom1$NO_MUNICIPIO`/`r mun_bottom1$SG_UF`** tem **`r fmt_pct(mun_bottom1$pct_contratados)`%**. É notável que municípios do Rio de Janeiro e da Bahia aparecem nos dois extremos da distribuição, o que já é um indício de que a variação **dentro** de uma mesma UF pode ser tão ou mais importante que a variação **entre** UFs — o que o gráfico de variabilidade a seguir confirma.
+
+```{r boxplot-uf}
+#| out-width: "100%"
+fig("13_boxplot_contratados_por_uf_2025.png")
+```
+
+O boxplot, com os municípios de cada UF ordenados pela mediana, mostra que mesmo UFs com médias moderadas escondem amplitudes internas muito grandes. Roraima e o Rio de Janeiro têm as caixas mais largas relativas à sua mediana, indicando municípios extremamente heterogêneos entre si dentro do mesmo estado. São Paulo, apesar de ter uma das médias mais baixas do país, tem uma cauda de municípios-outlier que chegam a mais de 75% de contratados, mostrando que mesmo estados "bem-comportados" na média têm municípios fora da curva.
+
+A conclusão prática desta seção é que políticas ou diagnósticos formulados apenas no nível de UF podem mascarar realidades municipais muito distintas.
+
+# Evolução do quadro docente por etapa de ensino
+
+Diferente do vínculo contratual, a variável de etapa de ensino existe em toda a série `r min(etapa_serie$NU_ANO_CENSO)`–`r max(etapa_serie$NU_ANO_CENSO)`, permitindo observar tendência. Como um mesmo docente pode atuar em mais de uma etapa, as participações a seguir não são mutuamente exclusivas.
+
+```{r etapa-serie}
+#| out-width: "100%"
+fig("01_docentes_por_etapa_2015_2025.png")
+```
+
+O total de docentes da educação básica cresceu `r fmt_pct(100 * (etapa_2025$doc_bas / etapa_2015$doc_bas - 1))`% na década (de `r fmt_n(etapa_2015$doc_bas)` em `r etapa_2015$NU_ANO_CENSO` para `r fmt_n(etapa_2025$doc_bas)` em `r etapa_2025$NU_ANO_CENSO`), com uma queda temporária entre 2018 e 2020 (provavelmente associada ao início da pandemia de covid-19) seguida de recuperação a partir de 2021. O destaque da década é o crescimento da participação da **educação infantil**, que passou de `r fmt_pct(etapa_2015$pct_inf)`% para `r fmt_pct(etapa_2025$pct_inf)`% dos docentes, coerente com a expansão de creches e pré-escolas observada no período. Em contrapartida, a participação dos **anos finais do fundamental** recuou de `r fmt_pct(etapa_2015$pct_fund_af)`% para `r fmt_pct(etapa_2025$pct_fund_af)`%. Anos iniciais e ensino médio mantiveram participação relativamente estável.
+
+Olhando a composição por rede (a figura a seguir usa uma escala de eixo Y própria em cada painel, pois as redes têm portes muito diferentes), o padrão de especialização por etapa é nítido:
+
+```{r etapa-dependencia}
+#| out-width: "100%"
+fig("08_etapa_por_dependencia_2015_2025.png")
+```
+
+A rede **federal** é dominada quase inteiramente pelo ensino médio, que cresceu de forma constante ao longo da década (institutos federais); as demais etapas são residuais nessa rede. A rede **estadual** tem o ensino médio como sua maior categoria, seguida pelos anos finais do fundamental; os anos iniciais estaduais estão em queda visível, coerente com o processo histórico de municipalização dessa etapa. A rede **municipal** concentra o maior contingente nos anos iniciais e, com o crescimento mais expressivo da década, na educação infantil; o ensino médio é praticamente inexistente nessa rede. A rede **privada** é a única em que todas as quatro etapas têm presença relevante e crescem ao longo da década.
+
+```{r etapa-localizacao}
+#| out-width: "100%"
+fig("09_etapa_por_localizacao_2015_2025.png")
+```
+
+Na zona **rural**, os anos finais do fundamental são a maior categoria ao longo de toda a década, seguidos pelos anos iniciais; a educação infantil e o ensino médio rurais crescem de forma proporcionalmente forte, sinal de uma tentativa de interiorização dessas etapas no campo. Na zona **urbana**, o padrão histórico se inverte ao final da série: os anos iniciais do fundamental terminam 2025 como a maior categoria, superando os anos finais; a educação infantil urbana tem o crescimento mais acentuado, com um degrau bem marcado entre 2020 e 2022, coincidindo com o período pós-pandemia.
+
+# Cruzamento entre vínculo contratual e desempenho educacional (IDEB)
+
+Uma pergunta natural, dado o retrato acima, é se a maior dependência de docentes contratados está associada a um IDEB mais baixo. Essa seção testa essa hipótese, restrita à rede pública (federal, estadual e municipal, exceto no ensino médio a nível de UF, onde se usa a rede estadual como proxy — ver seção "Descrição dos dados"), no mesmo ano de referência (2025).
+
+```{r tabela-correlacao}
+correlacao |>
+  dplyr::select(nivel, etapa, n, pearson, sig_pearson, spearman, sig_spearman) |>
+  knitr::kable(
+    col.names = c("Nível", "Etapa", "N", "Pearson (r)", "Significância (Pearson)",
+                  "Spearman (ρ)", "Significância (Spearman)"),
+    digits = 3,
+    caption = "Correlação entre % de docentes contratados e IDEB, por nível e etapa (2025)."
+  )
+```
+
+A leitura correta desses números exige separar dois conceitos que costumam ser confundidos: **significância estatística** e **relevância prática**. No nível **município**, com uma amostra grande (entre `r fmt_n(min(correlacao[nivel == "Município"]$n))` e `r fmt_n(max(correlacao[nivel == "Município"]$n))` municípios), todas as correlações são estatisticamente significativas a 1%. Mas os coeficientes de correlação são muito baixos — o que em termos de magnitude é uma correlação **fraca a desprezível**. Em outras palavras: com uma amostra grande, mesmo relações praticamente inexistentes tendem a aparecer como "estatisticamente significativas" — a significância aqui é, em boa parte, um artefato do tamanho da amostra, não evidência de uma relação forte ou substantiva entre as duas variáveis. No nível **UF**, com apenas `r correlacao[nivel == "UF"]$n[1]` observações, nenhuma correlação é estatisticamente significativa. Aqui não há evidência estatística de associação alguma.
+
+O sinal da correlação, quando estatisticamente detectável (nível município), é sempre **negativo**: mais docentes contratados está associado a um IDEB levemente mais baixo, nunca mais alto. Esse sinal é consistente com a hipótese inicial, mas sua magnitude é pequena demais para sustentar qualquer afirmação de que o tipo de vínculo contratual seja, isoladamente, um fator explicativo relevante das diferenças de IDEB entre municípios.
+
+```{r ideb-dispersao-municipio}
+#| out-width: "100%"
+fig("15_dispersao_contratados_ideb_municipio_2025.png")
+```
+
+```{r ideb-dispersao-uf}
+#| out-width: "100%"
+fig("16_dispersao_contratados_ideb_uf_2025.png")
+```
+
+Os gráficos de dispersão (município e UF, um painel por etapa) tornam visível o que os números de correlação já indicam: as nuvens de pontos são dispersas e sem padrão visual claro, com uma linha de tendência praticamente plana. Não há, visualmente, nenhum agrupamento que sugira um efeito de limiar nem uma relação linear forte em nenhuma direção.
+
+# Considerações finais
+
+O corpus de `r fmt_n(n_total_2025)` docentes da educação básica (`r max(etapa_serie$NU_ANO_CENSO)`) sustenta as quatro entregas analíticas deste relatório: o panorama do vínculo contratual por rede, localização, região e território, a heterogeneidade municipal, a evolução por etapa de ensino (`r min(etapa_serie$NU_ANO_CENSO)`–`r max(etapa_serie$NU_ANO_CENSO)`) e o cruzamento com o IDEB 2025.
+
+Em síntese: quase 2 em cada 5 docentes da rede pública têm vínculo contratado, não concursado, com forte heterogeneidade entre redes, localização e território — mas sem evidência de que essa característica, isoladamente, explique diferenças relevantes de desempenho educacional medido pelo IDEB. O problema da contratação temporária no magistério público brasileiro é real, expressivo e desigualmente distribuído, mas seu impacto direto e isolado sobre o IDEB é, com os dados de 2025, estatisticamente fraco — o que sugere que essa relação, se existir de forma mais substantiva, opera de forma indireta ou em conjunto com outros fatores (contexto socioeconômico, infraestrutura escolar, formação docente), e não como uma relação simples e direta capturada por uma correlação bivariada.
+
+As limitações de cobertura documentadas na seção "Descrição dos dados" (vínculo só disponível em 2025, só para a rede pública; IDEB sem educação infantil) permanecem válidas para qualquer uso posterior destes resultados.
+
+# Referências
+
+- INEP. *Censo Escolar da Educação Básica — Microdados*. Disponível em: <https://www.gov.br/inep/dados-abertos/microdados/censo-escolar>. Acesso em: `r format(Sys.Date(), "%d %b. %Y")`.
+- INEP. *IDEB — Resultados e Metas*. Disponível em: <https://www.gov.br/inep/pt-br/areas-de-atuacao/pesquisas-estatisticas-e-indicadores/ideb>. Acesso em: `r format(Sys.Date(), "%d %b. %Y")`.

@@ -1,11 +1,11 @@
 ---
-title: "Docentes da Educação Básica: Vínculo Contratual e Etapa de Ensino"
-subtitle: "Relatório descritivo — Censo Escolar (INEP), com cruzamento ao IDEB"
+title: 'Docentes da Educação Básica: Vínculo Contratual e Etapa de Ensino'
 author:
-  - "Anderson Henrique — Cientista político (Ph.D.)"
-  - "Pesquisador de pós-doutorado, FAPESP/CEM/USP"
+- Anderson Henrique — Cientista político (Ph.D.)
+- "Pesquisador de pós-doutorado, FAPESP/CEM/USP"
 date: "Setembro de 2026"
-lang: pt-BR
+lang: "pt-BR"
+subtitle: Relatório descritivo — Censo Escolar (INEP), com cruzamento ao IDEB
 ---
 
 ```{=openxml}

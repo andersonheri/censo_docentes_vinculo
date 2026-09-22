@@ -20,3 +20,5 @@ Thumbs.db
 
 # Preview HTML gerado automaticamente pelo RStudio ao abrir .md
 relatorios/*.html
+relatorios/*.log
+relatorios/*.tex

@@ -256,7 +256,25 @@ ler_ideb_xlsx <- function(caminho_xlsx, coluna_ancora, aba = 1) {
   }
 
   if (is.na(col_mun) && is.na(col_uf)) {
-    stop("Não encontrei nem CO_MUNICIPIO nem SG_UF/UF em ", caminho_xlsx, ".")
+    # Diagnóstico: em vez de só falhar, mostra uma amostra de cada coluna
+    # "candidata" (as que sobraram sem nome, tipicamente onde a
+    # identificação mora quando não tem rótulo na linha de cabeçalho),
+    # para decidir o próximo ajuste sem outra rodada de tentativa e erro.
+    cols_sem_nome <- names(dados_bruto)[grepl("^\\.\\.\\.|^NA$|^$", names(dados_bruto))]
+    message("    [diagnóstico] Nenhuma coluna de UF/município identificada. ",
+            "Colunas sem nome no cabeçalho (candidatas mais prováveis): ",
+            paste(cols_sem_nome, collapse = ", "))
+    for (col in cols_sem_nome) {
+      valores <- na.omit(as.character(dados_bruto[[col]]))
+      amostra <- unique(valores)
+      message("      '", col, "' (", length(valores), " valores não-NA, ",
+              length(amostra), " únicos): ",
+              paste(head(amostra, 15), collapse = " | "),
+              if (length(amostra) > 15) " | ..." else "")
+    }
+    stop("Não encontrei nem CO_MUNICIPIO nem SG_UF/UF em ", caminho_xlsx,
+         ". Veja o diagnóstico acima (colunas sem nome e uma amostra de ",
+         "valores) para decidir qual é a coluna de identificação.")
   }
 
   cols_id <- na.omit(c(SG_UF = col_uf, CO_MUNICIPIO = col_mun,

@@ -184,8 +184,11 @@ dist_vinculo_dep_long[, pct := round(100 * n_docentes / sum(n_docentes), 1),
 g3 <- ggplot(dist_vinculo_dep_long,
              aes(x = vinculo, y = pct, fill = vinculo)) +
   geom_col(position = "dodge") +
+  geom_text(aes(label = paste0(percent(pct / 100, accuracy = 0.1))),
+            vjust = -0.4, size = 3.8) +
   facet_wrap(~ dependencia, nrow = 1) +
-  scale_y_continuous(labels = label_percent(scale = 1)) +
+  scale_y_continuous(labels = label_percent(scale = 1),
+                      expand = expansion(mult = c(0, .15))) +
   labs(
     title    = "Vínculo contratual por dependência administrativa — Brasil, 2025",
     subtitle = "% de docentes dentro de cada dependência",
@@ -386,8 +389,11 @@ dist_vinculo_loc_long[, pct := round(100 * n_docentes / sum(n_docentes), 1),
 g6 <- ggplot(dist_vinculo_loc_long,
              aes(x = vinculo, y = pct, fill = vinculo)) +
   geom_col(position = "dodge") +
+  geom_text(aes(label = paste0(percent(pct / 100, accuracy = 0.1))),
+            vjust = -0.4, size = 3.8) +
   facet_wrap(~ localizacao) +
-  scale_y_continuous(labels = label_percent(scale = 1)) +
+  scale_y_continuous(labels = label_percent(scale = 1),
+                      expand = expansion(mult = c(0, .15))) +
   labs(
     title    = "Vínculo contratual por localização urbana/rural — Brasil, 2025",
     subtitle = "% de docentes dentro de cada localização",
@@ -603,8 +609,11 @@ dist_vinculo_regiao_long[, regiao := factor(
 g10 <- ggplot(dist_vinculo_regiao_long,
               aes(x = vinculo, y = pct, fill = vinculo)) +
   geom_col(position = "dodge") +
+  geom_text(aes(label = paste0(percent(pct / 100, accuracy = 0.1))),
+            vjust = -0.4, size = 3.5) +
   facet_wrap(~ regiao, nrow = 1) +
-  scale_y_continuous(labels = label_percent(scale = 1)) +
+  scale_y_continuous(labels = label_percent(scale = 1),
+                      expand = expansion(mult = c(0, .15))) +
   labs(
     title    = "Vínculo contratual por região — Brasil, 2025",
     subtitle = "% de docentes dentro de cada região",

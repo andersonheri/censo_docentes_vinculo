@@ -1,0 +1,7 @@
+nivel;etapa;n;pearson;pearson_p;spearman;spearman_p
+Município;Anos Iniciais;5478;-0.053;8.07e-05;-0.094;3.42e-12
+Município;Anos Finais;5491;-0.039;0.00362;-0.088;6.54e-11
+Município;Ensino Médio;5428;-0.11;5.55e-16;-0.125;2.58e-20
+UF;Anos Iniciais;27;0.111;0.581;0.121;0.547
+UF;Anos Finais;27;0.056;0.78;0.101;0.618
+UF;Ensino Médio;27;0.077;0.702;0.062;0.757

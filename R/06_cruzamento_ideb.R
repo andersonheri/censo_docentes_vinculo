@@ -24,6 +24,13 @@
 #   o cruzamento cobre Anos Iniciais, Anos Finais e Ensino Médio — não
 #   Infantil.
 #
+#   "Rede pública" = Federal+Estadual+Municipal, EXCETO Ensino Médio: a
+#   base de UF/região do IDEB não traz, nessa etapa, uma linha agregada
+#   "Pública" (rede municipal não oferece Ensino Médio, e a federal é
+#   residual e não aparece separada nessa aba) — só Estadual/Privada/Total.
+#   Por isso, para Ensino Médio usa-se a rede Estadual como proxy da rede
+#   pública (ver escolher_rede_publica() abaixo).
+#
 # PRÉ-REQUISITO: rodar R/01_importar_docentes.R e R/05_importar_ideb.R
 # antes (os três arquivos .rds usados abaixo precisam existir em
 # data/processed/).
@@ -70,6 +77,28 @@ sem_acento <- function(x) toupper(trimws(iconv(as.character(x), to = "ASCII//TRA
 # Rótulos de etapa alinhados entre os dois lados do cruzamento.
 etapas_ideb <- c("Anos Iniciais", "Anos Finais", "Ensino Médio")
 
+# Qual REDE do IDEB representa "rede pública" para cada etapa/base.
+# Normalmente é a linha agregada "Pública" (Federal+Estadual+Municipal).
+# MAS: confirmado por diagnóstico que, na base de UF/região, a aba de
+# Ensino Médio não traz essa linha agregada — só Estadual/Privada/Total
+# (rede municipal não oferece Ensino Médio, e a federal é residual e nem
+# aparece separada nessa aba). Nesse caso a rede mais próxima de "toda a
+# rede pública" é a Estadual, e é isso que se usa, com aviso no console.
+escolher_rede_publica <- function(dt, etapa) {
+  redes_disponiveis <- sem_acento(unique(dt[etapa_ideb == etapa]$REDE))
+  if ("PUBLICA" %in% redes_disponiveis) return("PUBLICA")
+  if ("ESTADUAL" %in% redes_disponiveis) {
+    message("    [aviso] Etapa '", etapa, "': esta base não tem linha agregada ",
+            "'Pública'; usando 'Estadual' como proxy de rede pública (Ensino ",
+            "Médio não tem rede municipal relevante, e a federal não aparece ",
+            "agregada aqui).")
+    return("ESTADUAL")
+  }
+  stop("Nenhuma rede pública (Pública/Estadual) encontrada para a etapa '",
+       etapa, "'. Redes disponíveis: ",
+       paste(sort(unique(dt[etapa_ideb == etapa]$REDE)), collapse = " | "))
+}
+
 # Recanoniza etapa_ideb pela mesma razão (garante que os nomes das colunas
 # geradas pelo dcast() mais abaixo batam exatamente com `etapas_ideb`).
 normalizar_etapa <- function(x) {
@@ -105,9 +134,11 @@ docentes_mun_2025[, pct_contratados := round(100 * doc_vinculo_contrat / doc_bas
 
 # ── Lado IDEB: rede pública, edição 2025, formato largo (1 coluna por
 #    etapa) ───────────────────────────────────────────────────────────────
-ideb_mun_2025 <- ideb_municipios[
-  ano == 2025 & sem_acento(REDE) == "PUBLICA" & etapa_ideb %in% etapas_ideb
-]
+ideb_municipios_2025 <- ideb_municipios[ano == 2025 & etapa_ideb %in% etapas_ideb]
+ideb_mun_2025 <- rbindlist(lapply(etapas_ideb, function(etapa) {
+  rede_alvo <- escolher_rede_publica(ideb_municipios_2025, etapa)
+  ideb_municipios_2025[etapa_ideb == etapa & sem_acento(REDE) == rede_alvo]
+}))
 ideb_mun_2025_wide <- dcast(
   ideb_mun_2025, CO_MUNICIPIO ~ etapa_ideb, value.var = "ideb"
 )
@@ -145,9 +176,11 @@ docentes_uf_2025[, pct_contratados := round(100 * doc_vinculo_contrat / doc_bas,
 
 # ideb_uf: NIVEL == "UF" filtra as 27 UFs (exclui as 5 linhas de região,
 # que ficaram com SG_UF = NA — ver 05_importar_ideb.R).
-ideb_uf_2025 <- ideb_uf[
-  ano == 2025 & sem_acento(REDE) == "PUBLICA" & NIVEL == "UF" & etapa_ideb %in% etapas_ideb
-]
+ideb_uf_2025_base <- ideb_uf[ano == 2025 & NIVEL == "UF" & etapa_ideb %in% etapas_ideb]
+ideb_uf_2025 <- rbindlist(lapply(etapas_ideb, function(etapa) {
+  rede_alvo <- escolher_rede_publica(ideb_uf_2025_base, etapa)
+  ideb_uf_2025_base[etapa_ideb == etapa & sem_acento(REDE) == rede_alvo]
+}))
 ideb_uf_2025_wide <- dcast(ideb_uf_2025, SG_UF ~ etapa_ideb, value.var = "ideb")
 
 faltando_uf <- setdiff(etapas_ideb, names(ideb_uf_2025_wide))
@@ -177,14 +210,19 @@ calcular_correlacoes <- function(base, nivel) {
     ok <- stats::complete.cases(x, y)
     if (sum(ok) < 3) {
       return(data.table(nivel = nivel, etapa = etapa, n = sum(ok),
-                         pearson = NA_real_, spearman = NA_real_))
+                         pearson = NA_real_, pearson_p = NA_real_,
+                         spearman = NA_real_, spearman_p = NA_real_))
     }
+    teste_pearson  <- stats::cor.test(x[ok], y[ok], method = "pearson")
+    teste_spearman <- stats::cor.test(x[ok], y[ok], method = "spearman")
     data.table(
-      nivel    = nivel,
-      etapa    = etapa,
-      n        = sum(ok),
-      pearson  = round(cor(x[ok], y[ok], method = "pearson"), 3),
-      spearman = round(cor(x[ok], y[ok], method = "spearman"), 3)
+      nivel      = nivel,
+      etapa      = etapa,
+      n          = sum(ok),
+      pearson    = round(teste_pearson$estimate, 3),
+      pearson_p  = signif(teste_pearson$p.value, 3),
+      spearman   = round(teste_spearman$estimate, 3),
+      spearman_p = signif(teste_spearman$p.value, 3)
     )
   }))
 }
@@ -210,11 +248,13 @@ base_mun_long <- melt(
   variable.name = "etapa_ideb",
   value.name    = "ideb"
 )[!is.na(ideb)]
+base_mun_long[, etapa_ideb := factor(etapa_ideb, levels = etapas_ideb)]
 
 rotulos_corr_mun <- correlacoes[nivel == "Município",
                                  .(etapa, label = paste0("r = ", pearson))]
 base_mun_long <- merge(base_mun_long, rotulos_corr_mun,
                         by.x = "etapa_ideb", by.y = "etapa", all.x = TRUE)
+base_mun_long[, etapa_ideb := factor(etapa_ideb, levels = etapas_ideb)]
 
 g15 <- ggplot(base_mun_long, aes(x = pct_contratados, y = ideb)) +
   geom_point(alpha = 0.15, size = 0.8, color = "#2C7FB8") +
@@ -230,7 +270,8 @@ g15 <- ggplot(base_mun_long, aes(x = pct_contratados, y = ideb)) +
     title    = "% de docentes contratados x IDEB — municípios, 2025 (rede pública)",
     subtitle = "Cada ponto é um município | linha vermelha = tendência linear",
     x        = "% de docentes contratados",
-    y        = "IDEB"
+    y        = "IDEB",
+    caption  = "Rede pública = Federal+Estadual+Municipal, exceto Ensino Médio\n(sem linha agregada 'Pública' na base do IDEB; usa-se a rede Estadual)"
   )
 
 ggsave(file.path(dir_fig, "15_dispersao_contratados_ideb_municipio_2025.png"),
@@ -247,10 +288,12 @@ base_uf_long <- melt(
   variable.name = "etapa_ideb",
   value.name    = "ideb"
 )[!is.na(ideb)]
+base_uf_long[, etapa_ideb := factor(etapa_ideb, levels = etapas_ideb)]
 
 rotulos_corr_uf <- correlacoes[nivel == "UF", .(etapa, label = paste0("r = ", pearson))]
 base_uf_long <- merge(base_uf_long, rotulos_corr_uf,
                        by.x = "etapa_ideb", by.y = "etapa", all.x = TRUE)
+base_uf_long[, etapa_ideb := factor(etapa_ideb, levels = etapas_ideb)]
 
 g16 <- ggplot(base_uf_long, aes(x = pct_contratados, y = ideb)) +
   geom_smooth(method = "lm", se = TRUE, color = "#D7301F", linewidth = 1) +
@@ -267,7 +310,8 @@ g16 <- ggplot(base_uf_long, aes(x = pct_contratados, y = ideb)) +
     title    = "% de docentes contratados x IDEB — UFs, 2025 (rede pública)",
     subtitle = "Cada ponto é uma UF | linha vermelha = tendência linear",
     x        = "% de docentes contratados",
-    y        = "IDEB"
+    y        = "IDEB",
+    caption  = "Rede pública = Federal+Estadual+Municipal, exceto Ensino Médio\n(sem linha agregada 'Pública' na base do IDEB; usa-se a rede Estadual)"
   )
 
 ggsave(file.path(dir_fig, "16_dispersao_contratados_ideb_uf_2025.png"),

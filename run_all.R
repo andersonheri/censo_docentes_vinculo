@@ -7,3 +7,4 @@
 source("R/01_importar_docentes.R")
 source("R/02_distribuicoes.R")
 source("R/03_visualizacoes.R")
+source("R/04_analises_avancadas.R")

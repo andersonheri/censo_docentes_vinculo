@@ -27,6 +27,12 @@ Por isso:
 
 Nível do painel: **escola × ano** (`CO_ENTIDADE` × `NU_ANO_CENSO`).
 
+Os rankings e o boxplot por município (`04_analises_avancadas.R`)
+consideram apenas municípios com pelo menos **30 docentes** no total
+(`MIN_DOCENTES`, parâmetro no início do script) — municípios muito
+pequenos podem ter, por exemplo, 1 docente contratado em 2, o que dá
+50% e distorce o ranking sem significado real.
+
 ## Estrutura do projeto
 
 ```
@@ -37,7 +43,8 @@ censo_docentes_vinculo/
 │   ├── 00_setup.R                 # pacotes, caminhos, variáveis de interesse
 │   ├── 01_importar_docentes.R     # lê 2015-2025 e monta o painel escola x ano
 │   ├── 02_distribuicoes.R         # gera as tabelas-resumo (Brasil)
-│   └── 03_visualizacoes.R         # gráficos ggplot2 e mapas (UF e município)
+│   ├── 03_visualizacoes.R         # gráficos ggplot2 e mapas (UF e município)
+│   └── 04_analises_avancadas.R    # ranking, boxplot e painel-resumo executivo
 ├── data/
 │   ├── raw/                       # microdados brutos (NÃO versionado — ver README nesta pasta)
 │   └── processed/                 # painel consolidado (NÃO versionado, gerado localmente)
@@ -57,6 +64,7 @@ censo_docentes_vinculo/
    source("R/01_importar_docentes.R")
    source("R/02_distribuicoes.R")
    source("R/03_visualizacoes.R")
+   source("R/04_analises_avancadas.R")
    ```
 
 Os mapas (`03_visualizacoes.R`) usam o pacote `geobr`, que baixa a malha
@@ -89,6 +97,8 @@ pode levar alguns minutos na primeira execução.
   contratados, por UF, 2025.
 - `outputs/tables/dist_docentes_municipio_2025.csv` — o mesmo, por
   município, 2025.
+- `outputs/tables/dist_docentes_municipio_nomeado_2025.csv` — o mesmo,
+  por município, com nome do município e UF (usado nos rankings).
 - `outputs/figures/01_docentes_por_etapa_2015_2025.png` — evolução do
   total de docentes por etapa, 2015-2025.
 - `outputs/figures/02_docentes_por_vinculo_2025.png` — distribuição por
@@ -112,6 +122,17 @@ pode levar alguns minutos na primeira execução.
   com um painel por localização urbana/rural, 2015-2025.
 - `outputs/figures/10_vinculo_por_regiao_2025.png` — vínculo contratual
   por região geográfica, 2025 (barras agrupadas por facet).
+- `outputs/figures/11_ranking_municipios_contratados_2025.png` — os 10
+  municípios com maior e os 10 com menor % de contratados, 2025 (só
+  municípios com pelo menos 30 docentes).
+- `outputs/figures/12_ranking_uf_contratados_2025.png` — ranking
+  completo das 27 UFs por % de contratados, com a média nacional
+  marcada, 2025.
+- `outputs/figures/13_boxplot_contratados_por_uf_2025.png` — boxplot da
+  % de contratados entre os municípios de cada UF, 2025.
+- `outputs/figures/14_painel_resumo_executivo_2025.png` — painel único
+  (via `patchwork`) com os números-chave, o mapa por UF e o top-5 de
+  UFs — pensado para abrir uma apresentação/relatório.
 
 ## Dependências
 
@@ -119,6 +140,7 @@ pode levar alguns minutos na primeira execução.
 - [`data.table`](https://cran.r-project.org/package=data.table)
 - [`ggplot2`](https://cran.r-project.org/package=ggplot2), [`scales`](https://cran.r-project.org/package=scales)
 - [`geobr`](https://cran.r-project.org/package=geobr), [`sf`](https://cran.r-project.org/package=sf) — malhas geográficas para os mapas
+- [`patchwork`](https://cran.r-project.org/package=patchwork) — monta o painel-resumo executivo a partir de vários gráficos
 
 ## Fonte dos dados
 

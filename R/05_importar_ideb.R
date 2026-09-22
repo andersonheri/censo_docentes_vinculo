@@ -185,8 +185,14 @@ ler_ideb_xlsx <- function(caminho_xlsx, coluna_ancora, aba = 1) {
   # 3) Colunas de identificação, localizadas por nome (não por posição).
   col_uf    <- grep("^SG_UF$|^UF$|^CO_UF$|Sigla da UF", names(dados), value = TRUE)[1]
   col_mun   <- grep("^CO_MUNICIPIO$", names(dados), value = TRUE)[1]
-  col_nome  <- grep("^NO_MUNICIPIO$|MUNIC[IÍ]PIO", names(dados),
-                     value = TRUE, ignore.case = TRUE)[1]
+  # Regex de MUNICIPIO sozinho também casaria com "CO_MUNICIPIO" (código);
+  # por isso exige que o nome comece com NO_/NOME (nunca com CO_/SG_), e
+  # exclui explicitamente o que já foi capturado em col_mun.
+  col_nome  <- setdiff(
+    grep("^NO_MUNICIPIO$|^NOME.*MUNIC[IÍ]PIO", names(dados),
+         value = TRUE, ignore.case = TRUE),
+    col_mun
+  )[1]
   col_rede  <- grep("^REDE$", names(dados), value = TRUE, ignore.case = TRUE)[1]
 
   # 4) Colunas de valor do IDEB observado, uma por edição — padrão
@@ -210,6 +216,14 @@ ler_ideb_xlsx <- function(caminho_xlsx, coluna_ancora, aba = 1) {
 
   cols_id <- na.omit(c(SG_UF = col_uf, CO_MUNICIPIO = col_mun,
                         NO_MUNICIPIO = col_nome, REDE = col_rede))
+
+  if (anyDuplicated(cols_id)) {
+    stop("A mesma coluna do arquivo foi identificada para mais de um papel ",
+         "(", paste(names(cols_id)[duplicated(cols_id) | duplicated(cols_id, fromLast = TRUE)],
+                     collapse = ", "), " apontam para a coluna '",
+         cols_id[duplicated(cols_id)][1], "'). Ajuste os regex de detecção ",
+         "em ler_ideb_xlsx() para essa planilha.")
+  }
 
   if (!is.na(col_rede)) {
     message("    Valores únicos de '", col_rede, "': ",

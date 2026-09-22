@@ -171,16 +171,19 @@ ler_ideb_xlsx <- function(caminho_xlsx, coluna_ancora, aba = 1) {
   message("    [ok] Linha de cabeçalho detectada: ", linha_cabecalho)
 
   # 2) Relê a planilha inteira usando essa linha como cabeçalho.
-  dados <- suppressMessages(
+  dados_bruto <- suppressMessages(
     read_excel(caminho_xlsx, sheet = aba, skip = linha_cabecalho - 1, col_names = TRUE)
   )
-  names(dados) <- trimws(names(dados))
-  # Colunas sem nome (restos de mesclagem) e duplicadas viram NA/"...N"
-  # pelo próprio readxl — removidas aqui para não atrapalhar a busca por
-  # regex abaixo.
-  dados <- dados[, !grepl("^\\.\\.\\.|^NA$|^$", names(dados))]
+  names(dados_bruto) <- trimws(names(dados_bruto))
+  setDT(dados_bruto)
 
-  setDT(dados)
+  # Colunas sem nome (restos de mesclagem) e duplicadas viram NA/"...N"
+  # pelo próprio readxl. A maioria é lixo de mesclagem e pode ser
+  # descartada, mas no arquivo de UF/região a própria coluna de
+  # identificação (Região/UF) não tem rótulo na linha de cabeçalho
+  # "achatada" e cai nesse grupo — por isso `dados_bruto` (sem remover
+  # nada) é mantido à parte para o fallback por valor mais abaixo.
+  dados <- dados_bruto[, !grepl("^\\.\\.\\.|^NA$|^$", names(dados_bruto)), with = FALSE]
 
   # 3) Colunas de identificação, localizadas por nome (não por posição).
   col_uf    <- grep("^SG_UF$|^UF$|^CO_UF$|Sigla da UF", names(dados), value = TRUE)[1]
@@ -195,6 +198,28 @@ ler_ideb_xlsx <- function(caminho_xlsx, coluna_ancora, aba = 1) {
   )[1]
   col_rede  <- grep("^REDE$", names(dados), value = TRUE, ignore.case = TRUE)[1]
 
+  # 3b) Fallback POR VALOR (não por nome): se nenhuma coluna com nome
+  # SG_UF/UF foi encontrada, procura entre as colunas SEM NOME (as que
+  # foram descartadas de `dados` acima) uma cujos valores sejam quase
+  # todos siglas de UF ou nomes de região — típico do arquivo de
+  # UF/região, cuja coluna de identificação não tem rótulo na linha de
+  # cabeçalho achatada.
+  if (is.na(col_uf) && is.na(col_mun)) {
+    vocabulario_uf <- c(names(uf_regiao), unique(uf_regiao), "Brasil", "BR")
+    candidatos <- names(dados_bruto)[vapply(dados_bruto, function(col) {
+      valores <- na.omit(as.character(col))
+      length(valores) > 0 && mean(valores %in% vocabulario_uf) > 0.8
+    }, logical(1))]
+
+    if (length(candidatos) >= 1) {
+      col_uf <- candidatos[1]
+      dados[[col_uf]] <- dados_bruto[[col_uf]]
+      message("    [fallback por valor] Nenhuma coluna nomeada SG_UF/UF; ",
+              "detectei '", col_uf, "' pelo conteúdo (siglas de UF/nomes ",
+              "de região). Confira os valores abaixo.")
+    }
+  }
+
   # 4) Colunas de valor do IDEB observado, uma por edição — padrão
   #    confirmado na inspeção manual do arquivo: VL_OBSERVADO_<ano>.
   cols_ideb <- grep("^VL_OBSERVADO_\\d{4}$", names(dados), value = TRUE)
@@ -203,6 +228,10 @@ ler_ideb_xlsx <- function(caminho_xlsx, coluna_ancora, aba = 1) {
           paste(na.omit(c(col_uf, col_mun, col_nome, col_rede)), collapse = ", "))
   message("    Colunas de IDEB (VL_OBSERVADO_<ano>) encontradas: ",
           length(cols_ideb), " -> ", paste(sort(cols_ideb), collapse = ", "))
+  if (!is.na(col_uf)) {
+    message("    Valores únicos de '", col_uf, "': ",
+            paste(sort(unique(dados[[col_uf]])), collapse = " | "))
+  }
 
   if (length(cols_ideb) == 0) {
     stop("Nenhuma coluna 'VL_OBSERVADO_<ano>' encontrada em ", caminho_xlsx,
@@ -249,7 +278,7 @@ ler_ideb_xlsx <- function(caminho_xlsx, coluna_ancora, aba = 1) {
   # Renomeia para os nomes canônicos usados no resto do projeto.
   setnames(longo, unname(cols_id), names(cols_id))
 
-  message("    [ok] ", format(nrow(longo), big.mark = "."),
+  message("    [ok] ", format(nrow(longo), big.mark = ".", decimal.mark = ","),
           " linhas no formato longo (", length(unique(longo$ano)), " edições)")
 
   longo[]
@@ -275,7 +304,7 @@ lista_ideb_mun <- lapply(names(etapas_municipio), function(nome) {
 ideb_municipios <- rbindlist(lista_ideb_mun, use.names = TRUE, fill = TRUE)
 
 message("\n>>> IDEB município (todas as etapas): ",
-        format(nrow(ideb_municipios), big.mark = ","), " linhas")
+        format(nrow(ideb_municipios), big.mark = ",", decimal.mark = "."), " linhas")
 
 saveRDS(ideb_municipios, file.path(dir_proc, "ideb_municipios_long.rds"))
 fwrite(ideb_municipios, file.path(dir_proc, "ideb_municipios_long.csv"), sep = ";")
@@ -302,7 +331,7 @@ lista_ideb_uf <- lapply(names(abas_uf), function(etapa) {
 
 ideb_uf <- rbindlist(lista_ideb_uf, use.names = TRUE, fill = TRUE)
 
-message("\n>>> IDEB UF/região: ", format(nrow(ideb_uf), big.mark = ","), " linhas")
+message("\n>>> IDEB UF/região: ", format(nrow(ideb_uf), big.mark = ",", decimal.mark = "."), " linhas")
 
 saveRDS(ideb_uf, file.path(dir_proc, "ideb_uf_long.rds"))
 fwrite(ideb_uf, file.path(dir_proc, "ideb_uf_long.csv"), sep = ";")

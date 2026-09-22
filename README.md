@@ -36,12 +36,14 @@ censo_docentes_vinculo/
 ├── R/
 │   ├── 00_setup.R                 # pacotes, caminhos, variáveis de interesse
 │   ├── 01_importar_docentes.R     # lê 2015-2025 e monta o painel escola x ano
-│   └── 02_distribuicoes.R         # gera as tabelas-resumo (Brasil)
+│   ├── 02_distribuicoes.R         # gera as tabelas-resumo (Brasil)
+│   └── 03_visualizacoes.R         # gráficos ggplot2 e mapas (UF e município)
 ├── data/
 │   ├── raw/                       # microdados brutos (NÃO versionado — ver README nesta pasta)
 │   └── processed/                 # painel consolidado (NÃO versionado, gerado localmente)
 └── outputs/
-    └── tables/                    # tabelas-resumo finais (versionadas, pequenas)
+    ├── tables/                    # tabelas-resumo finais (versionadas, pequenas)
+    └── figures/                   # gráficos e mapas em PNG (versionados)
 ```
 
 ## Como reproduzir
@@ -50,11 +52,18 @@ censo_docentes_vinculo/
    seguindo as instruções em [`data/raw/README.md`](data/raw/README.md).
 2. Abra `censo_docentes_vinculo.Rproj` no RStudio (garante que o
    diretório de trabalho seja a raiz do projeto).
-3. Rode `source("run_all.R")`, ou os dois scripts em `R/` na ordem:
+3. Rode `source("run_all.R")`, ou os scripts em `R/` na ordem:
    ```r
    source("R/01_importar_docentes.R")
    source("R/02_distribuicoes.R")
+   source("R/03_visualizacoes.R")
    ```
+
+Os mapas (`03_visualizacoes.R`) usam o pacote `geobr`, que baixa a malha
+de estados e municípios do IBGE na primeira execução (fica em cache
+local depois) — é necessário estar conectado à internet na primeira vez.
+O mapa por município baixa um shapefile pesado (~5.570 municípios) e
+pode levar alguns minutos na primeira execução.
 
 ## Saídas
 
@@ -66,11 +75,29 @@ censo_docentes_vinculo/
   vínculo contratual, Brasil, 2025.
 - `outputs/tables/dist_docentes_vinculo_dependencia_2025.csv` — o mesmo,
   por dependência administrativa (Federal/Estadual/Municipal/Privada).
+- `outputs/tables/dist_docentes_uf_2025.csv` — total de docentes e % de
+  contratados, por UF, 2025.
+- `outputs/tables/dist_docentes_municipio_2025.csv` — o mesmo, por
+  município, 2025.
+- `outputs/figures/01_docentes_por_etapa_2015_2025.png` — evolução do
+  total de docentes por etapa, 2015-2025.
+- `outputs/figures/02_docentes_por_vinculo_2025.png` — distribuição por
+  vínculo contratual, Brasil, 2025.
+- `outputs/figures/03_vinculo_por_dependencia_2025.png` — vínculo
+  contratual por dependência administrativa, 2025.
+- `outputs/figures/04a_mapa_docentes_total_uf_2025.png` /
+  `04b_mapa_pct_contratados_uf_2025.png` — mapas por UF (total de
+  docentes e % contratados), 2025.
+- `outputs/figures/05a_mapa_docentes_total_municipio_2025.png` /
+  `05b_mapa_pct_contratados_municipio_2025.png` — os mesmos mapas, por
+  município, 2025.
 
 ## Dependências
 
 - R ≥ 4.0
 - [`data.table`](https://cran.r-project.org/package=data.table)
+- [`ggplot2`](https://cran.r-project.org/package=ggplot2), [`scales`](https://cran.r-project.org/package=scales)
+- [`geobr`](https://cran.r-project.org/package=geobr), [`sf`](https://cran.r-project.org/package=sf) — malhas geográficas para os mapas
 
 ## Fonte dos dados
 

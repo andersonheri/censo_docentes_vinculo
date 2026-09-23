@@ -150,6 +150,8 @@ Contato: andersonheri@gmail.com
 
 **Fonte dos dados**: microdados públicos do Censo Escolar da Educação Básica e do IDEB (INEP). Os dados de origem são públicos; a síntese, as figuras e a interpretação reunidas neste relatório constituem material de entrega desta consultoria.
 
+**ATENÇÃO**: relatório descritivo apenas para fins de apresentação. Favor não divulgar. 
+
 :::
 
 ```{=latex}
@@ -164,7 +166,7 @@ Este relatório descreve o perfil dos docentes da educação básica brasileira 
 
 Como desdobramento, o relatório também examina se essa característica do vínculo contratual está associada ao desempenho educacional medido pelo IDEB, testando a hipótese de que uma maior proporção de docentes contratados (em vez de concursados) esteja relacionada a resultados piores.
 
-O relatório é descritivo. Apresenta distribuições, comparações entre grupos e uma análise de correlação simples, calculadas a partir dos dados tratados pelo pipeline em `R/` (ver `README.md` do projeto). Não se trata de uma análise causal, e as limitações de cada fonte são explicitadas na próxima seção.
+O relatório é descritivo e apresenta distribuições, comparações entre grupos e uma análise de correlação simples, calculadas a partir dos dados tratados pelo pipeline em `R/` (ver `README.md` do projeto). Não se trata de uma análise causal e as limitações de cada fonte são explicitadas na próxima seção.
 
 # Descrição dos dados
 

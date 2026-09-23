@@ -219,3 +219,15 @@ cada painel.
 ## Fonte dos dados
 
 [Microdados do Censo Escolar — INEP](https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/microdados/censo-escolar)
+
+## Declaração de uso de Inteligência Artificial
+
+Ferramentas de IA generativa (assistentes de código baseados em LLM) foram utilizadas como apoio na construção deste repositório, nas seguintes frentes:
+
+* refatoração e limpeza dos scripts R (organização das funções em `R/`, remoção de trechos redundantes, padronização das mensagens de log e dos nomes de variável);
+* revisão da lógica de agregação e das checagens de validação célula a célula contra os microdados brutos do Censo Escolar e do IDEB (INEP);
+* redação e organização da documentação (este README e o relatório final em `relatorios/relatorio_final.qmd`).
+
+Todo o desenho metodológico, a definição das variáveis, as fontes de dados, as decisões de recorte e a checagem dos resultados são de responsabilidade do autor. Os dados de origem são públicos (Censo Escolar da Educação Básica e IDEB, ambos do INEP) e nenhum dado sensível ou pessoal foi fornecido a ferramentas de IA. As saídas geradas com apoio de IA foram conferidas manualmente antes de serem incorporadas ao projeto.
+
+Analista responsável: Anderson Henrique.
